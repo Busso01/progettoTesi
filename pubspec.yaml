@@ -39,6 +39,7 @@ dependencies:
   #This make the app layout responsive
   flutter_screenutil: ^5.6.0
   get: ^4.6.5
+  pencil_kit: ^1.0.4
 
 dev_dependencies:
   flutter_test:
@@ -56,7 +57,63 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  assets: 
+    - assets/images/notebook.png
 
+  fonts:
+    - family: Aeonik
+      fonts:
+        - asset: assets/fonts/AeonikProTRIAL-Light.otf
+          weight: 300
+        - asset: assets/fonts/AeonikProTRIAL-Regular.otf
+          weight: 400
+        - asset: assets/fonts/AeonikProTRIAL-Bold.otf
+          weight: 700
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Roboto-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Roboto-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Roboto-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Montserrat-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Montserrat-Bold.ttf
+          weight: 700
+    - family: Handlee
+      fonts:
+        - asset: assets/fonts/handlee-regular.ttf
+          weight: 400
+    - family: MarckScript
+      fonts:
+        - asset: assets/fonts/MarckScript-Regular.ttf
+          weight: 400
+    - family: Daniel
+      fonts:
+        - asset: assets/fonts/daniel.ttf
+          weight: 400
+        - asset: assets/fonts/danielbd.ttf
+          weight: 700
+    - family: Dancing
+      fonts:
+        - asset: assets/fonts/DancingScript-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/DancingScript-Bold.ttf
+          weight: 700
+
+    - family: Handm
+      fonts:
+        - asset: assets/fonts/HANDM.ttf
+          weight: 400
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

@@ -139,6 +139,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.3"
+  pencil_kit:
+    dependency: "direct main"
+    description:
+      name: pencil_kit
+      sha256: c6e6e15f5606339fc74e70b88553c819529b789595241c77f9cd82086ecad991
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
+  plugin_platform_interface:
+    dependency: transitive
+    description:
+      name: plugin_platform_interface
+      sha256: "43798d895c929056255600343db8f049921cbec94d31ec87f1dc5c16c01935dd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.5"
   sky_engine:
     dependency: transitive
     description: flutter

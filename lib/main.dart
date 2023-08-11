@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:progettotesi/src/DrawPage/draw_page.dart';
+import 'package:progettotesi/src/SelectLetter/selection_view.dart';
 
-import 'HomePage/home.dart';
+import 'src/HomePage/home.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,6 +27,14 @@ class MyApp extends StatelessWidget {
               GetPage(
                 name: '/',
                 page: () => const HomePage(),
+              ),
+              GetPage(
+                name: '/selectionView',
+                page: () => const SelectionView(),
+              ),
+              GetPage(
+                name: '/drawPage',
+                page: () => const DrawPage(),
               )
             ]);
       },
