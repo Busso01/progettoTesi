@@ -38,12 +38,11 @@ class SelectionView extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 15.w),
             width: MediaQuery.of(context).size.width - 30,
-            height: MediaQuery.of(context).size.height - 160,
+            height: MediaQuery.of(context).size.height - 100,
             child: GridView.count(
               crossAxisCount: 3,
               primary: false,
               crossAxisSpacing: 15.w,
-              mainAxisSpacing: 15.h,
               childAspectRatio: 0.8,
               children: List.generate(
                 26,
@@ -53,6 +52,9 @@ class SelectionView extends StatelessWidget {
               ),
             ),
           ),
+          SizedBox(
+            height: 10.h,
+          ),
         ],
       ),
     );
@@ -60,7 +62,8 @@ class SelectionView extends StatelessWidget {
 
   Widget letterCard(String letter) {
     return Padding(
-        padding: EdgeInsets.only(top: 15.h, bottom: 5.h, left: 5.w, right: 5.w),
+        padding:
+            EdgeInsets.only(top: 15.h, bottom: 25.h, left: 5.w, right: 5.w),
         child: InkWell(
           onTap: () {
             Get.toNamed('/drawPage');
