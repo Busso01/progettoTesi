@@ -199,7 +199,9 @@ class AppTheme {
         fontSize: 12,
         fontWeight: FontWeight.w300,
       ),
-    ), colorScheme: ColorScheme.fromSwatch(primarySwatch: const MaterialColor(
+    ),
+    colorScheme: ColorScheme.fromSwatch(
+        primarySwatch: const MaterialColor(
       _bluePrimaryValue,
       <int, Color>{
         50: Color(0xFFE3F2FD),

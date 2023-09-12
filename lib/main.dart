@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:progettotesi/src/DrawPage/draw_page_binding.dart';
 import 'package:progettotesi/src/DrawPage/draw_page_view.dart';
 import 'package:progettotesi/src/SelectLetter/selection_view.dart';
+
 
 import 'src/HomePage/home.dart';
 
@@ -29,13 +31,14 @@ class MyApp extends StatelessWidget {
                 page: () => const HomePage(),
               ),
               GetPage(
-                name: '/selectionView',
-                page: () => const SelectionView(),
-              ),
+                  name: '/selectionView',
+                  page: () => const SelectionView(),
+                  transition: null),
               GetPage(
-                name: '/drawPage',
-                page: () => const DrawPageView(),
-              )
+                  name: '/drawPage',
+                  page: () => const DrawPageView(),
+                  binding: DrawPageBinding(),
+                  transition: null)
             ]);
       },
     );

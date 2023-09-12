@@ -1,12 +1,15 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:progettotesi/src/DrawPage/draw_section.dart';
-import 'package:progettotesi/src/global_widgets/button_custom.dart';
-
+import 'package:progettotesi/src/DrawPage/draw_page_controller.dart';
+import 'package:scribble/scribble.dart';
+import 'package:signature/signature.dart';
 import '../../core/theme/theme.dart';
+import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 
-class DrawPageView extends StatelessWidget {
+class DrawPageView extends GetView<DrawPageController> {
   const DrawPageView({super.key});
 
   @override
@@ -25,77 +28,28 @@ class DrawPageView extends StatelessWidget {
             color: const Color(0xFF545D68),
             size: 30.sp,
           ),
-          onPressed: () => Get.back(),
+          onPressed: () {
+            controller.signatureController.clear();
+            controller.notifier.clear();
+            Get.back();
+          },
         ),
         title: Text(
           'Scrivi la lettera',
           style: AppTheme.submainContentTextStyleBlack,
         ),
       ),
-      body: Column(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height / 3,
-            width: MediaQuery.of(context).size.width,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-            ),
-            child: Stack(
-              children: [
-                Center(
-                  child: Text(
-                    'Ciao',
-                    style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 46.sp,
-                        fontFamily: 'Dancing'),
-                  ),
-                ),
-                const DrawSection(),
-              ],
-            ),
-          ),
-          Flexible(
-            fit: FlexFit.loose,
-            child: Container(
-                width: MediaQuery.of(context).size.width,
-                decoration: const BoxDecoration(
-                  color: Colors.grey,
-                ),
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      top: 30.h, left: 30.w, right: 30.w, bottom: 40.h),
-                  child: Column(
-                    children: [
-                      Flexible(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 15.w),
-                          child: GridView.count(
-                            crossAxisCount: 4,
-                            primary: false,
-                            crossAxisSpacing: 20.w,
-                            childAspectRatio: 0.8,
-                            children: List.generate(
-                              4,
-                              (index) => selectionTile(
-                                String.fromCharCode(index + 65),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 60.h),
-                        child: ButtonCustom(
-                          buttonText: 'Conferma',
-                          onPressed: () {},
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
-          ),
-        ],
+      body: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            letter(),
+            drawSection(),
+          ],
+        ),
       ),
     );
   }
@@ -125,4 +79,52 @@ class DrawPageView extends StatelessWidget {
           ),
         ));
   }
+
+  Widget drawSection() {
+    controller.notifier.setStrokeWidth(1.sp);
+    controller.notifier.setAllowedPointersMode(ScribblePointerMode.penOnly);
+    return Container(
+      decoration: BoxDecoration(color: Colors.white.withOpacity(0.5)),
+      child: Scribble(
+        notifier: controller.notifier,
+        drawPen: true,
+      ),
+    );
+    // return Signature(
+    //   controller: controller.signatureController,
+    //   width: 140,
+    //   height: 140,
+    //   backgroundColor: Colors.white.withOpacity(0.5),
+    //   dynamicPressureSupported: false,
+    // );
+    // return Center(
+    //   child: SizedBox(
+    //     height: 140,
+    //     width: 140,
+    //     child: SfSignaturePad(
+    //       minimumStrokeWidth: 1.sp,
+    //       maximumStrokeWidth: 3.sp,
+    //       strokeColor: Colors.black,
+    //       backgroundColor: Colors.white.withOpacity(0.5),
+    //     ),
+    //   ),
+    // );
+  }
+
+  Widget letter() => Container(
+        width: 150,
+        height: 150,
+        decoration: const BoxDecoration(color: Colors.white),
+        child: Center(
+          child: Text(
+            controller.selectedLetter,
+            style: TextStyle(
+                color: Colors.black, fontSize: 46.sp, fontFamily: 'Dancing'),
+          ),
+        ),
+      );
+}
+
+Widget buildImage(Uint8List bytes) {
+  return Image.memory(bytes);
 }
