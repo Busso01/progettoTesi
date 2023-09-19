@@ -32,7 +32,7 @@ class HomePage extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontFamily: 'Handlee',
-                          fontSize: 46.sp,
+                          fontSize: 40.sp,
                           fontWeight: FontWeight.normal),
                     )
                   ],
@@ -44,6 +44,9 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
                 ButtonCustom(
+                  width: 200.w,
+                  height: 70.h,
+                  fontSize: 16.sp,
                   buttonText: "Gioca!",
                   marginBottom: 40,
                   onPressed: () {
@@ -51,6 +54,9 @@ class HomePage extends StatelessWidget {
                   },
                 ),
                 ButtonCustom(
+                  width: 200.w,
+                  height: 70.h,
+                  fontSize: 16.sp,
                   buttonText: "Impostazioni",
                   marginBottom: 40,
                   onPressed: () {

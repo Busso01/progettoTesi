@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:progettotesi/core/theme/theme.dart';
 import 'package:progettotesi/src/DrawPage/draw_page_controller.dart';
 import 'package:progettotesi/src/DrawPage/draw_page_view.dart';
-
 import 'letter_card.dart';
 
 class SelectionView extends StatelessWidget {
@@ -16,7 +15,7 @@ class SelectionView extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFFCFAF8),
       appBar: AppBar(
-        toolbarHeight: 80.h,
+        toolbarHeight: 50.h,
         backgroundColor: const Color.fromARGB(255, 109, 12, 126),
         elevation: 5.sp,
         centerTitle: true,
@@ -30,7 +29,7 @@ class SelectionView extends StatelessWidget {
         ),
         title: Text(
           'Scegli una lettera',
-          style: AppTheme.mainContentTextStyleWhite,
+          style: AppTheme.normalContentTextStyleBoldWhite,
         ),
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(

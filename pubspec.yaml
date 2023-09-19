@@ -49,6 +49,10 @@ dependencies:
   signature: ^5.3.0
   flutter_animate: ^4.2.0+1
   animations: ^2.0.8
+  awesome_dialog: ^3.1.0
+  tflite_flutter: ^0.10.1
+  flutter_tflite: ^1.0.1
+  external_path: ^1.0.3
 
 dev_dependencies:
   flutter_test:

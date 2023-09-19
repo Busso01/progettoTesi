@@ -72,7 +72,7 @@ class AppTheme {
   static final mainTitleTextStyleBlack = TextStyle(
     color: colorTextBlack,
     fontFamily: 'Aeonik',
-    fontSize: 46.sp,
+    fontSize: 40.sp,
     fontWeight: FontWeight.w700,
   );
 
@@ -128,7 +128,7 @@ class AppTheme {
   static final normalContentTextStyle = TextStyle(
     color: colorTextBlack,
     fontFamily: 'Aeonik',
-    fontSize: 18.sp,
+    fontSize: 14.sp,
     fontWeight: FontWeight.w400,
   );
 
@@ -141,6 +141,13 @@ class AppTheme {
 
   static final normalContentTextStyleBold = TextStyle(
     color: colorTextBlack,
+    fontFamily: 'Aeonik',
+    fontSize: 18.sp,
+    fontWeight: FontWeight.w600,
+  );
+
+  static final normalContentTextStyleBoldWhite = TextStyle(
+    color: colorTextWhite,
     fontFamily: 'Aeonik',
     fontSize: 18.sp,
     fontWeight: FontWeight.w600,
