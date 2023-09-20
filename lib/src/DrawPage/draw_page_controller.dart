@@ -84,14 +84,14 @@ class DrawPageController extends GetxController {
     saveDraw(index);
     saveLetter(widget);
 
-    final model = ImageComparisonModel();
-    await model.loadModel();
+    // final model = ImageComparisonModel();
+    // await model.loadModel();
 
-    final embedding1 = await model.getEmbedding(drawImage!);
-    final embedding2 = await model.getEmbedding(widgetImage!);
+    // final embedding1 = await model.getEmbedding(drawImage!);
+    // final embedding2 = await model.getEmbedding(widgetImage!);
 
-    final similarity = cosineSimilarity(embedding1, embedding2);
-    print('Similarity Score: $similarity');
+    // final similarity = cosineSimilarity(embedding1, embedding2);
+    // print('Similarity Score: $similarity');
   }
 
   double cosineSimilarity(List<double> image1, List<double> image2) {

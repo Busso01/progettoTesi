@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.6 <4.0.0'
+  sdk: '>=3.1.1 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -32,27 +32,16 @@ dependencies:
     sdk: flutter
 
 
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  #This make the app layout responsive
-  flutter_screenutil: ^5.6.0
-  get: ^4.6.5
-  pencil_kit: ^1.0.4
-  screenshot: ^2.1.0
+  flutter_screenutil: ^5.9.0
+  get: ^4.6.6
   scribble: ^0.9.1
-  flutter_riverpod: ^2.3.7
-  syncfusion_flutter_signaturepad: ^22.2.12
-  flutter_drawing_board: ^0.5.0
-  image_compare: ^1.1.2
-  signature: ^5.3.0
-  flutter_animate: ^4.2.0+1
-  animations: ^2.0.8
-  awesome_dialog: ^3.1.0
-  tflite_flutter: ^0.10.1
-  flutter_tflite: ^1.0.1
+  screenshot: ^2.1.0
   external_path: ^1.0.3
+  awesome_dialog: ^3.1.0
+  animations: ^2.0.8
 
 dev_dependencies:
   flutter_test:
