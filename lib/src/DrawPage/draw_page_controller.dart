@@ -1,12 +1,11 @@
-import 'dart:math';
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:scribble/scribble.dart';
-import 'package:progettotesi/src/DrawPage/image_comparison_model.dart';
-import 'package:external_path/external_path.dart';
+import 'package:image/image.dart' as img;
 
 class DrawPageController extends GetxController {
   List<ScribbleNotifier> scribbleNotifier = [
@@ -16,10 +15,22 @@ class DrawPageController extends GetxController {
     ScribbleNotifier()
   ];
 
+  List<GlobalKey> globalKeys = [
+    GlobalKey(debugLabel: '1'),
+    GlobalKey(debugLabel: '2'),
+    GlobalKey(debugLabel: '3'),
+    GlobalKey(debugLabel: '4'),
+  ];
+
   ScreenshotController screenshotController = ScreenshotController();
   PageController pageController = PageController(viewportFraction: 0.8);
-  Uint8List? widgetImage;
-  Uint8List? drawImage;
+
+  Uint8List? widget;
+  Uint8List? draw;
+  img.Image? drawImage;
+  img.Image? widgetImage;
+  List<PointerEvent> pointerDataInfo = [];
+  List<Offset> pointerOffset = [];
   var isDrawSaved = false.obs;
   var isWidgetSaved = false.obs;
   var isExpanded = false.obs;
@@ -31,22 +42,26 @@ class DrawPageController extends GetxController {
     scribbleNotifier[1].dispose();
     scribbleNotifier[2].dispose();
     scribbleNotifier[3].dispose();
-
     pageController.dispose();
     super.onClose();
   }
 
-  void saveLetter(Widget widget) async {
-    widgetImage = await screenshotController.captureFromWidget(widget,
-        delay: const Duration(seconds: 0),
-        targetSize: Size(100.w, 180.h),
-        pixelRatio: 1);
+  Future<void> saveLetter(Widget widgetPassed) async {
+    widget = await screenshotController.captureFromWidget(widgetPassed,
+        delay: const Duration(seconds: 0), pixelRatio: 1);
+    widgetImage = img.decodeImage(widget!);
     isWidgetSaved.value = true;
   }
 
-  void saveDraw(int index) async {
+  Future<void> saveDrawWidget(Widget widgetPassed) async {
+    draw = await screenshotController.captureFromWidget(widgetPassed,
+        delay: const Duration(seconds: 0), pixelRatio: 1);
+    drawImage = img.decodeImage(draw!);
+  }
+
+  Future<void> saveDraw(int index) async {
     var image = await scribbleNotifier[index].renderImage(pixelRatio: 1);
-    drawImage = image.buffer.asUint8List();
+    draw = image.buffer.asUint8List();
     isDrawSaved.value = true;
   }
 
@@ -80,32 +95,77 @@ class DrawPageController extends GetxController {
     return '';
   }
 
-  void compareImages(int index, Widget widget) async {
-    saveDraw(index);
-    saveLetter(widget);
-
-    // final model = ImageComparisonModel();
-    // await model.loadModel();
-
-    // final embedding1 = await model.getEmbedding(drawImage!);
-    // final embedding2 = await model.getEmbedding(widgetImage!);
-
-    // final similarity = cosineSimilarity(embedding1, embedding2);
-    // print('Similarity Score: $similarity');
+  double selectStrokeWidth(int index) {
+    if (index == 0 || index == 1) {
+      return 1.25.sp;
+    } else {
+      return 1.1.sp;
+    }
   }
 
-  double cosineSimilarity(List<double> image1, List<double> image2) {
-    double dotProduct = 0;
-    double norm1 = 0;
-    double norm2 = 0;
+  // void compareImage() async {
+  //   var result = calculateMSE(drawImage!, widgetImage!);
 
-    for (int i = 0; i < image1.length; i++) {
-      dotProduct += image1[i] * image2[i];
-      norm1 += pow(image1[i], 2);
-      norm2 += pow(image2[i], 2);
+  //   // print('drawW: ${drawImage?.width}, drawH: ${drawImage?.height}');
+  //   // print('widgetW: ${widgetImage?.width}, widgetH: ${widgetImage?.height}');
+  //   print('result: $result');
+  // }
+
+  // double calculateMSE(img.Image img1, img.Image img2) {
+  //   double mse = 0.0;
+  //   for (int y = 0; y < img1.height; y++) {
+  //     for (int x = 0; x < img1.width; x++) {
+  //       final pixel1 = img1.getPixel(x, y);
+  //       final pixel2 = img2.getPixel(x, y);
+
+  //       final redDiff = img.getRed(pixel1) - img.getRed(pixel2);
+  //       final greenDiff = img.getGreen(pixel1) - img.getGreen(pixel2);
+  //       final blueDiff = img.getBlue(pixel1) - img.getBlue(pixel2);
+
+  //       final pixelMSE =
+  //           (redDiff * redDiff + greenDiff * greenDiff + blueDiff * blueDiff) /
+  //               3.0;
+  //       mse += pixelMSE;
+  //     }
+  //   }
+  //   mse /= (img1.width * img1.height);
+
+  //   return mse;
+  // }
+
+  bool compareImage() {
+    int numBlackPixelDrawImage = 0;
+    int numBlackPixelWidgetImage = 0;
+    int numPixelMatching = 0;
+    for (int y = 0; y < drawImage!.height; y++) {
+      for (int x = 0; x < drawImage!.width; x++) {
+        final pixelDrawImage = drawImage!.getPixel(x, y);
+        final pixelWidgetImage = widgetImage!.getPixel(x, y);
+
+        if (img.isBlack(pixelWidgetImage)) {
+          numBlackPixelWidgetImage++;
+        }
+
+        if (img.isBlack(pixelDrawImage)) {
+          numBlackPixelDrawImage++;
+        }
+
+        if ((img.isBlack(pixelDrawImage) && img.isBlack(pixelWidgetImage))) {
+          numPixelMatching++;
+        }
+      }
     }
 
-    double similarity = dotProduct / (sqrt(norm1) * sqrt(norm2));
-    return similarity;
+    print('draw: $numBlackPixelDrawImage');
+    print('widget: $numBlackPixelWidgetImage');
+    print('match: $numPixelMatching');
+
+    if (numBlackPixelDrawImage >= numBlackPixelWidgetImage * 0.50) {
+      if (numPixelMatching >= numBlackPixelWidgetImage * 0.45) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

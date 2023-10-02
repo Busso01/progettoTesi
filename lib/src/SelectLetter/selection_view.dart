@@ -15,14 +15,14 @@ class SelectionView extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFFCFAF8),
       appBar: AppBar(
-        toolbarHeight: 50.h,
-        backgroundColor: const Color.fromARGB(255, 109, 12, 126),
+        toolbarHeight: 60.h,
+        backgroundColor: Colors.black,
         elevation: 5.sp,
         centerTitle: true,
         automaticallyImplyLeading: false,
         leading: IconButton(
-          alignment: Alignment.center,
-          onPressed: () => Get.back(),
+          iconSize: 20.sp,
+          onPressed: () => Get.offNamedUntil('/', (route) => false),
           icon: const Icon(
             Icons.home,
           ),
@@ -33,8 +33,8 @@ class SelectionView extends StatelessWidget {
         ),
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(30.r),
-                bottomRight: Radius.circular(30.r))),
+                bottomLeft: Radius.circular(20.r),
+                bottomRight: Radius.circular(20.r))),
       ),
       body: GridView.builder(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

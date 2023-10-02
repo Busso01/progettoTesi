@@ -16,25 +16,26 @@ class DrawPageView extends GetView<DrawPageController> {
         decoration: const BoxDecoration(
           color: Colors.white,
         ),
-        child: buildBody(),
+        child: buildBody(context),
       ),
     );
   }
 
   AppBar buildAppBar() => AppBar(
-        elevation: 0,
-        toolbarHeight: 50.h,
+        elevation: 5.sp,
+        toolbarHeight: 60.h,
         backgroundColor: Colors.black,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(20.r),
                 bottomRight: Radius.circular(20.r))),
         title: Text(
-          'Scegli una lettera',
+          'Scegli uno stile',
           style: AppTheme.normalContentTextStyleBoldWhite,
         ),
         centerTitle: true,
         leading: IconButton(
+          iconSize: 20.sp,
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
             color: Colors.white,
@@ -43,17 +44,21 @@ class DrawPageView extends GetView<DrawPageController> {
             controller.isExpanded.value = false;
             controller.isDrawSaved.value = false;
             controller.isWidgetSaved.value = false;
+            for (int i = 0; i < 4; i++) {
+              controller.scribbleNotifier[i].clear();
+            }
             Get.back();
           },
         ),
       );
 
-  Widget buildBody() {
+  Widget buildBody(BuildContext context) {
     return Obx(
       () => Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.only(top: 60.h),
+            padding: EdgeInsets.only(top: 40.h, bottom: 10.h),
             child: Text(
               controller.isExpanded.value
                   ? 'Disegna la lettera,\n conferma quando hai terminato'
@@ -62,7 +67,8 @@ class DrawPageView extends GetView<DrawPageController> {
               style: AppTheme.normalContentTextStyle,
             ),
           ),
-          Expanded(
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.60,
             child: PageView.builder(
               controller: controller.pageController,
               itemCount: 4,
@@ -72,12 +78,22 @@ class DrawPageView extends GetView<DrawPageController> {
                   : null,
             ),
           ),
-          Obx(() => controller.isDrawSaved.value
-              ? Image.memory(controller.drawImage!)
-              : Container()),
-          Obx(() => controller.isWidgetSaved.value
-              ? Image.memory(controller.widgetImage!)
-              : Container())
+          Padding(
+            padding: EdgeInsets.only(top: 40.h),
+            child: Text(
+              controller.isExpanded.value
+                  ? 'Clicca sul lato della carta per \ntornare alla selezione'
+                  : '',
+              textAlign: TextAlign.center,
+              style: AppTheme.normalContentTextStyle,
+            ),
+          ),
+          // Obx(() => controller.isDrawSaved.value
+          //     ? Image.memory(controller.drawImage!)
+          //     : Container()),
+          // Obx(() => controller.isWidgetSaved.value
+          //     ? Image.memory(controller.widgetImage!)
+          //     : Container())
         ],
       ),
     );

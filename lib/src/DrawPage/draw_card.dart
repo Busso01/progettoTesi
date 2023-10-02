@@ -18,15 +18,17 @@ class DrawCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     DrawPageController controller = Get.find();
+    var height = 390.h;
+    var width = 170.w;
 
     return Stack(
-      alignment: Alignment.center,
+      alignment: Alignment.bottomCenter,
       children: [
         AnimatedPositioned(
           duration: const Duration(milliseconds: 300),
-          bottom: controller.isExpanded.value ? 150.h : 236.h,
-          width: controller.isExpanded.value ? 175.w * 1.2 : 175.w,
-          height: controller.isExpanded.value ? 420.h * 1.1 : 420.h,
+          bottom: controller.isExpanded.value ? 10.h : 90.h,
+          width: controller.isExpanded.value ? width * 1.2 : width,
+          height: controller.isExpanded.value ? height * 1.1 : height,
           child: Container(
             decoration: BoxDecoration(
               color: const Color.fromARGB(255, 99, 99, 99),
@@ -48,15 +50,16 @@ class DrawCard extends StatelessWidget {
                 ButtonCustom(
                   buttonText: 'Conferma',
                   height: 50.h,
-                  width: 120.w,
-                  onPressed: () {
-                    // DialogCustom.confirmDrawDialog(context);
-                    controller.saveDraw(index);
-                    controller.saveLetter(letter(index, controller));
+                  width: 160.w,
+                  onPressed: () async {
+                    await controller.saveDraw(index).then((_) => controller
+                        .saveLetter(letter(index, controller))
+                        .then((_) => DialogCustom.confirmDrawDialog(
+                            context, controller, index)));
                   },
                   paddingHorizontal: 0,
                   fontSize: 12.sp,
-                  marginBottom: 20.h,
+                  marginBottom: 15.h,
                   shadowColor: Colors.black,
                   elevation: 2.sp,
                 ),
@@ -66,41 +69,74 @@ class DrawCard extends StatelessWidget {
         ),
         AnimatedPositioned(
           duration: const Duration(milliseconds: 300),
-          bottom: 236.h,
+          bottom: 90.h,
           child: GestureDetector(
             onTap: controller.openDetailPage,
             child: Container(
-              height: 420.h,
-              width: 175.w,
+              height: height,
+              width: width,
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 207, 207, 207),
                 borderRadius: BorderRadius.all(Radius.circular(25.r)),
               ),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
-                    height: 10.h,
+                    height: 20.h,
                   ),
                   Text(
                     controller.selectTitle(index),
                     style: AppTheme.normalContentTextStyleBold,
                     textAlign: TextAlign.center,
                   ),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0.sp),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          letter(index, controller),
-                          drawSection(controller, index),
-                        ],
-                      ),
-                    ),
-                  ),
                   SizedBox(
                     height: 50.h,
-                  )
+                  ),
+                  Flexible(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      reverseDuration: const Duration(milliseconds: 300),
+                      child: controller.isExpanded.value
+                          ? Column(
+                              key: const Key('expanded'),
+                              children: [
+                                Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    letter(index, controller),
+                                    drawSection(controller, index),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 25.h,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    IconButton(
+                                        iconSize: 20.sp,
+                                        onPressed: () {
+                                          controller.scribbleNotifier[index]
+                                              .clear();
+                                        },
+                                        icon: SizedBox(
+                                          height: 30.h,
+                                          width: 30.w,
+                                          child: Image.asset(
+                                              'assets/images/rubber.png'),
+                                        )),
+                                  ],
+                                ),
+                              ],
+                            )
+                          : Column(
+                              children: [
+                                letter(index, controller),
+                              ],
+                            ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -112,41 +148,46 @@ class DrawCard extends StatelessWidget {
 }
 
 Widget drawSection(DrawPageController controller, int index) {
-  controller.scribbleNotifier[index].setStrokeWidth(1.sp);
   controller.scribbleNotifier[index]
-      .setAllowedPointersMode(ScribblePointerMode.penOnly);
-  return Container(
-    width: 100.w,
-    height: 180.h,
-    decoration: BoxDecoration(
-        color: controller.isExpanded.value
-            ? const Color.fromARGB(255, 207, 207, 207).withOpacity(0.5)
-            : null),
-    child: controller.isExpanded.value
-        ? Scribble(
-            notifier: controller.scribbleNotifier[index],
-          )
-        : null,
+      .setStrokeWidth(controller.selectStrokeWidth(index));
+  controller.scribbleNotifier[index]
+      .setAllowedPointersMode(ScribblePointerMode.all);
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(20.r),
+    child: Container(
+        width: 90.w,
+        height: 140.h,
+        decoration: BoxDecoration(
+          color: controller.isExpanded.value
+              ? const Color.fromARGB(255, 207, 207, 207).withOpacity(0.6)
+              : null,
+          border: Border.all(width: 1.sp),
+          borderRadius: BorderRadius.all(Radius.circular(20.r)),
+        ),
+        child: Scribble(
+          notifier: controller.scribbleNotifier[index],
+        )),
   );
 }
 
 Widget letter(int index, DrawPageController controller) => Container(
-      width: 100.w,
-      height: 180.h,
-      decoration: const BoxDecoration(color: Colors.transparent),
+      width: 90.w,
+      height: 140.h,
+      decoration:
+          const BoxDecoration(color: Color.fromARGB(255, 207, 207, 207)),
       child: Center(
         child: index == 0
             ? Text(
                 controller.selectedLetter,
                 style: TextStyle(
-                    color: Colors.black, fontSize: 46.sp, fontFamily: 'Aeonik'),
+                    color: Colors.black, fontSize: 40.sp, fontFamily: 'Aeonik'),
               )
             : index == 1
                 ? Text(
                     controller.selectedLetter.toLowerCase(),
                     style: TextStyle(
                         color: Colors.black,
-                        fontSize: 46.sp,
+                        fontSize: 40.sp,
                         fontFamily: 'Aeonik'),
                   )
                 : index == 2
@@ -154,15 +195,15 @@ Widget letter(int index, DrawPageController controller) => Container(
                         controller.selectedLetter,
                         style: TextStyle(
                             color: Colors.black,
-                            fontSize: 46.sp,
-                            fontFamily: 'Dancing'),
+                            fontSize: 40.sp,
+                            fontFamily: 'Handlee'),
                       )
                     : Text(
                         controller.selectedLetter.toLowerCase(),
                         style: TextStyle(
                             color: Colors.black,
-                            fontSize: 46.sp,
-                            fontFamily: 'Dancing'),
+                            fontSize: 40.sp,
+                            fontFamily: 'Handlee'),
                       ),
       ),
     );

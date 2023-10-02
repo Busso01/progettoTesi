@@ -5,7 +5,6 @@ import 'package:progettotesi/src/DrawPage/draw_page_binding.dart';
 import 'package:progettotesi/src/DrawPage/draw_page_view.dart';
 import 'package:progettotesi/src/SelectLetter/selection_view.dart';
 
-
 import 'src/HomePage/home.dart';
 
 void main() {
@@ -31,9 +30,9 @@ class MyApp extends StatelessWidget {
                 page: () => const HomePage(),
               ),
               GetPage(
-                  name: '/selectionView',
-                  page: () => const SelectionView(),
-                  transition: null),
+                name: '/selectionView',
+                page: () => const SelectionView(),
+              ),
               GetPage(
                   name: '/drawPage',
                   page: () => const DrawPageView(),
