@@ -30,10 +30,11 @@ class DialogCustom {
         buttonColor: AppTheme.colorSuccess,
         onPressed: () {
           Get.back();
-          controller.saveDrawWidget(drawnImage(controller)).then((value) =>
-              controller.compareImage()
-                  ? DialogCustom.successDialog(context, controller, index)
-                  : DialogCustom.failDialog(context, controller, index));
+          controller.saveDrawWidget(drawnImage(controller)).then((value) {
+            controller.compareImage()
+                ? DialogCustom.successDialog(context, controller, index)
+                : DialogCustom.failDialog(context, controller, index);
+          });
         },
       ),
       btnCancel: ButtonCustom(
@@ -44,6 +45,7 @@ class DialogCustom {
         buttonColor: AppTheme.colorDanger,
         onPressed: () {
           controller.scribbleNotifier[index].clear();
+          controller.drawPoints.clear();
           Get.back();
         },
       ),

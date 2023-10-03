@@ -56,6 +56,7 @@ class DrawCard extends StatelessWidget {
                         .saveLetter(letter(index, controller))
                         .then((_) => DialogCustom.confirmDrawDialog(
                             context, controller, index)));
+                    //controller.checkStyle();
                   },
                   paddingHorizontal: 0,
                   fontSize: 12.sp,
@@ -164,8 +165,16 @@ Widget drawSection(DrawPageController controller, int index) {
           border: Border.all(width: 1.sp),
           borderRadius: BorderRadius.all(Radius.circular(20.r)),
         ),
-        child: Scribble(
-          notifier: controller.scribbleNotifier[index],
+        child: Listener(
+          onPointerMove: (event) {
+            controller.drawPoints.last.add(event.position);
+          },
+          onPointerDown: ((event) {
+            controller.drawPoints.add([]);
+          }),
+          child: Scribble(
+            notifier: controller.scribbleNotifier[index],
+          ),
         )),
   );
 }

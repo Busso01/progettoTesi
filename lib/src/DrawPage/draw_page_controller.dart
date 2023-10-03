@@ -25,6 +25,8 @@ class DrawPageController extends GetxController {
   ScreenshotController screenshotController = ScreenshotController();
   PageController pageController = PageController(viewportFraction: 0.8);
 
+  List<List<Offset>> drawPoints = [];
+
   Uint8List? widget;
   Uint8List? draw;
   img.Image? drawImage;
@@ -168,4 +170,20 @@ class DrawPageController extends GetxController {
 
     return false;
   }
+
+  // void checkStyle() {
+  //   bool isCorrect = false;
+  //   if (drawPoints.length != 2) {
+  //     print(isCorrect);
+  //   } else {
+  //     for (List<Offset> l in drawPoints) {
+  //       if (l.first.dx < l.last.dx) {
+  //         isCorrect = true;
+  //       } else {
+  //         isCorrect = false;
+  //       }
+  //     }
+  //   }
+  //   print(isCorrect);
+  // }
 }
