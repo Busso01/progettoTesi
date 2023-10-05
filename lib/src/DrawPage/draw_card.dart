@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -7,7 +9,7 @@ import 'package:progettotesi/src/global_widgets/button_custom.dart';
 import 'package:progettotesi/src/global_widgets/dialog_custom.dart';
 import 'package:scribble/scribble.dart';
 
-class DrawCard extends StatelessWidget {
+class DrawCard extends GetView<DrawPageController> {
   final int index;
 
   const DrawCard({
@@ -17,7 +19,6 @@ class DrawCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DrawPageController controller = Get.find();
     var height = 390.h;
     var width = 170.w;
 
@@ -77,6 +78,14 @@ class DrawCard extends StatelessWidget {
               height: height,
               width: width,
               decoration: BoxDecoration(
+                //border: controller.isAlreadyDone(index) == 2 ? Border.all(color: AppTheme.colorSuccess, width: 2.w) : controller.isAlreadyDone(index) == 1 ? ,
+                border: Border.all(
+                    color: controller.drawAlreadyDone(index) == 2
+                        ? AppTheme.colorSuccess
+                        : controller.drawAlreadyDone(index) == 1
+                            ? AppTheme.colorDanger
+                            : Colors.transparent,
+                    width: 2.w),
                 color: const Color.fromARGB(255, 207, 207, 207),
                 borderRadius: BorderRadius.all(Radius.circular(25.r)),
               ),
@@ -96,47 +105,11 @@ class DrawCard extends StatelessWidget {
                   ),
                   Flexible(
                     child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      reverseDuration: const Duration(milliseconds: 300),
-                      child: controller.isExpanded.value
-                          ? Column(
-                              key: const Key('expanded'),
-                              children: [
-                                Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    letter(index, controller),
-                                    drawSection(controller, index),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 25.h,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    IconButton(
-                                        iconSize: 20.sp,
-                                        onPressed: () {
-                                          controller.scribbleNotifier[index]
-                                              .clear();
-                                        },
-                                        icon: SizedBox(
-                                          height: 30.h,
-                                          width: 30.w,
-                                          child: Image.asset(
-                                              'assets/images/rubber.png'),
-                                        )),
-                                  ],
-                                ),
-                              ],
-                            )
-                          : Column(
-                              children: [
-                                letter(index, controller),
-                              ],
-                            ),
-                    ),
+                        duration: const Duration(milliseconds: 300),
+                        reverseDuration: const Duration(milliseconds: 300),
+                        child: controller.isExpanded.value
+                            ? openedDrawCard(index, controller)
+                            : closedDrawCard(index, controller)),
                   ),
                 ],
               ),
@@ -215,4 +188,41 @@ Widget letter(int index, DrawPageController controller) => Container(
                             fontFamily: 'Handlee'),
                       ),
       ),
+    );
+
+Widget closedDrawCard(int index, DrawPageController controller) => Column(
+      children: [
+        letter(index, controller),
+      ],
+    );
+
+Widget openedDrawCard(int index, DrawPageController controller) => Column(
+      key: const Key('expanded'),
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            letter(index, controller),
+            drawSection(controller, index),
+          ],
+        ),
+        SizedBox(
+          height: 25.h,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+                iconSize: 20.sp,
+                onPressed: () {
+                  controller.scribbleNotifier[index].clear();
+                },
+                icon: SizedBox(
+                  height: 30.h,
+                  width: 30.w,
+                  child: Image.asset('assets/images/rubber.png'),
+                )),
+          ],
+        ),
+      ],
     );

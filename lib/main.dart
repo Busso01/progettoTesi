@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:progettotesi/src/DrawPage/draw_page_binding.dart';
 import 'package:progettotesi/src/DrawPage/draw_page_view.dart';
 import 'package:progettotesi/src/SelectLetter/selection_view.dart';
+import 'package:progettotesi/src/SelectLetter/selection_view_binding.dart';
 
 import 'src/HomePage/home.dart';
 
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
               GetPage(
                 name: '/selectionView',
                 page: () => const SelectionView(),
+                binding: SelectionViewBinding(),
               ),
               GetPage(
                   name: '/drawPage',

@@ -2,12 +2,14 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:isar/isar.dart';
 import 'package:progettotesi/core/theme/theme.dart';
 import 'package:progettotesi/src/DrawPage/draw_page_controller.dart';
 import 'package:progettotesi/src/DrawPage/draw_page_view.dart';
+import 'package:progettotesi/src/SelectLetter/selection_view_controller.dart';
 import 'letter_card.dart';
 
-class SelectionView extends StatelessWidget {
+class SelectionView extends GetView<SelectionViewController> {
   const SelectionView({super.key});
 
   @override
@@ -22,7 +24,9 @@ class SelectionView extends StatelessWidget {
         automaticallyImplyLeading: false,
         leading: IconButton(
           iconSize: 20.sp,
-          onPressed: () => Get.offNamedUntil('/', (route) => false),
+          onPressed: () async {
+            Get.offNamedUntil('/', (route) => false);
+          },
           icon: const Icon(
             Icons.home,
           ),
@@ -66,10 +70,16 @@ class SelectionView extends StatelessWidget {
                   LetterCard(
                 letter: String.fromCharCode(index + 65),
                 openContainer: openContainer,
+                isCompleted: controller.getLetterCardInfo(index),
+                letterIndex: index,
               ),
               openBuilder: (context, _) {
-                DrawPageController controller = Get.put(DrawPageController());
-                controller.selectedLetter = String.fromCharCode(index + 65);
+                DrawPageController drawPageController =
+                    Get.put(DrawPageController());
+                drawPageController.selectedLetter =
+                    String.fromCharCode(index + 65);
+                drawPageController.selectedLetterIndex = index;
+                drawPageController.savedData = controller.savedData[index];
                 return const DrawPageView();
               },
             ),

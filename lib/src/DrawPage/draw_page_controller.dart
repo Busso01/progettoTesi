@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:progettotesi/core/models/saved_data.dart';
+import 'package:progettotesi/core/services/api_service.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:scribble/scribble.dart';
 import 'package:image/image.dart' as img;
@@ -15,13 +17,6 @@ class DrawPageController extends GetxController {
     ScribbleNotifier()
   ];
 
-  List<GlobalKey> globalKeys = [
-    GlobalKey(debugLabel: '1'),
-    GlobalKey(debugLabel: '2'),
-    GlobalKey(debugLabel: '3'),
-    GlobalKey(debugLabel: '4'),
-  ];
-
   ScreenshotController screenshotController = ScreenshotController();
   PageController pageController = PageController(viewportFraction: 0.8);
 
@@ -29,14 +24,20 @@ class DrawPageController extends GetxController {
 
   Uint8List? widget;
   Uint8List? draw;
+
   img.Image? drawImage;
   img.Image? widgetImage;
+
   List<PointerEvent> pointerDataInfo = [];
   List<Offset> pointerOffset = [];
+
   var isDrawSaved = false.obs;
   var isWidgetSaved = false.obs;
   var isExpanded = false.obs;
+
   late String selectedLetter;
+  late int selectedLetterIndex;
+  late SavedData? savedData;
 
   @override
   void onClose() {
@@ -105,6 +106,17 @@ class DrawPageController extends GetxController {
     }
   }
 
+  int drawAlreadyDone(int index) {
+    switch (savedData?.results[index]) {
+      case true:
+        return 2;
+      case false:
+        return 1;
+      case null:
+        return 0;
+    }
+  }
+
   // void compareImage() async {
   //   var result = calculateMSE(drawImage!, widgetImage!);
 
@@ -162,13 +174,28 @@ class DrawPageController extends GetxController {
     print('widget: $numBlackPixelWidgetImage');
     print('match: $numPixelMatching');
 
-    if (numBlackPixelDrawImage >= numBlackPixelWidgetImage * 0.50) {
+    if (numBlackPixelDrawImage >= numBlackPixelWidgetImage * 0.45 &&
+        numBlackPixelDrawImage <= numBlackPixelWidgetImage * 1.05) {
       if (numPixelMatching >= numBlackPixelWidgetImage * 0.45) {
         return true;
       }
     }
 
     return false;
+  }
+
+  void saveResult(bool result, int index) {
+    if (savedData != null) {
+      savedData?.results[index] = result;
+      ApiService().saveResult(savedData!);
+      print(savedData);
+    } else {
+      List<bool> results = [false, false, false, false];
+      results[index] = result;
+      savedData = SavedData(letterIndex: selectedLetterIndex, results: results);
+      print(savedData);
+      ApiService().saveResult(savedData!);
+    }
   }
 
   // void checkStyle() {

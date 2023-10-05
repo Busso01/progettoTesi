@@ -2,6 +2,7 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:progettotesi/core/services/api_service.dart';
 import 'package:progettotesi/core/theme/theme.dart';
 import 'package:progettotesi/src/DrawPage/draw_page_controller.dart';
 import 'package:progettotesi/src/global_widgets/button_custom.dart';
@@ -31,7 +32,9 @@ class DialogCustom {
         onPressed: () {
           Get.back();
           controller.saveDrawWidget(drawnImage(controller)).then((value) {
-            controller.compareImage()
+            bool result = controller.compareImage();
+            controller.saveResult(result, index);
+            result
                 ? DialogCustom.successDialog(context, controller, index)
                 : DialogCustom.failDialog(context, controller, index);
           });
@@ -112,12 +115,13 @@ class DialogCustom {
         width: 90.w,
         paddingHorizontal: 0,
         buttonColor: Colors.black,
-        onPressed: () {
+        onPressed: () async {
           controller.scribbleNotifier[index].clear();
           controller.isExpanded.value = false;
           controller.isDrawSaved.value = false;
           controller.isWidgetSaved.value = false;
-          Get.offNamedUntil('/selectionView', (route) => false);
+          Get.offAllNamed('/selectionView',
+              arguments: await ApiService().getAllPersistenceData());
         },
       ),
       btnCancel: ButtonCustom(
@@ -179,12 +183,13 @@ class DialogCustom {
         width: 90.w,
         paddingHorizontal: 0,
         buttonColor: Colors.black,
-        onPressed: () {
+        onPressed: () async {
           controller.scribbleNotifier[index].clear();
           controller.isExpanded.value = false;
           controller.isDrawSaved.value = false;
           controller.isWidgetSaved.value = false;
-          Get.offNamedUntil('/selectionView', (route) => false);
+          Get.offAllNamed('/selectionView',
+              arguments: await ApiService().getAllPersistenceData());
         },
       ),
       btnCancel: ButtonCustom(
