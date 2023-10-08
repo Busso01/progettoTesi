@@ -28,9 +28,6 @@ class DrawPageController extends GetxController {
   img.Image? drawImage;
   img.Image? widgetImage;
 
-  List<PointerEvent> pointerDataInfo = [];
-  List<Offset> pointerOffset = [];
-
   var isDrawSaved = false.obs;
   var isWidgetSaved = false.obs;
   var isExpanded = false.obs;
@@ -62,10 +59,14 @@ class DrawPageController extends GetxController {
     drawImage = img.decodeImage(draw!);
   }
 
-  Future<void> saveDraw(int index) async {
-    var image = await scribbleNotifier[index].renderImage(pixelRatio: 1);
-    draw = image.buffer.asUint8List();
-    isDrawSaved.value = true;
+  Future<bool> saveDraw(int index) async {
+    if (scribbleNotifier[index].currentSketch.lines.isNotEmpty) {
+      var image = await scribbleNotifier[index].renderImage(pixelRatio: 1);
+      draw = image.buffer.asUint8List();
+      isDrawSaved.value = true;
+      return true;
+    }
+    return false;
   }
 
   void openDetailPage() {
@@ -73,15 +74,22 @@ class DrawPageController extends GetxController {
       isExpanded.value = true;
     } else {
       isExpanded.value = false;
-      clearScribble();
+      clearAllScribbles();
     }
   }
 
-  void clearScribble() {
+  void clearAllScribbles() {
     scribbleNotifier[0].clear();
     scribbleNotifier[1].clear();
     scribbleNotifier[2].clear();
     scribbleNotifier[3].clear();
+  }
+
+  void resetControllerValues(int index) {
+    scribbleNotifier[index].clear();
+    isExpanded.value = false;
+    isDrawSaved.value = false;
+    isWidgetSaved.value = false;
   }
 
   String selectTitle(int index) {
@@ -180,21 +188,21 @@ class DrawPageController extends GetxController {
         return true;
       }
     }
-
     return false;
   }
 
-  void saveResult(bool result, int index) {
+  Future<bool> saveResult(bool result, int index) async {
+    bool success = false;
     if (savedData != null) {
       savedData?.results[index] = result;
-      ApiService().saveResult(savedData!);
-      print(savedData);
+      success = await ApiService().saveResultAPI(savedData!);
+      return success;
     } else {
       List<bool> results = [false, false, false, false];
       results[index] = result;
       savedData = SavedData(letterIndex: selectedLetterIndex, results: results);
-      print(savedData);
-      ApiService().saveResult(savedData!);
+      success = await ApiService().saveResultAPI(savedData!);
+      return success;
     }
   }
 
@@ -205,6 +213,22 @@ class DrawPageController extends GetxController {
   //   } else {
   //     for (List<Offset> l in drawPoints) {
   //       if (l.first.dx < l.last.dx) {
+  //         isCorrect = true;
+  //       } else {
+  //         isCorrect = false;
+  //       }
+  //     }
+  //   }
+  //   print(isCorrect);
+  // }
+
+  // void checkStyle(int index) {
+  //   bool isCorrect = false;
+  //   if (scribbleNotifier[index].currentSketch.lines.length != 2) {
+  //     print(isCorrect);
+  //   } else {
+  //     for (SketchLine s in scribbleNotifier[index].currentSketch.lines) {
+  //       if (s.points.first.x < s.points.last.x) {
   //         isCorrect = true;
   //       } else {
   //         isCorrect = false;

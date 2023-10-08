@@ -8,8 +8,8 @@ import 'package:progettotesi/src/DrawPage/draw_page_controller.dart';
 import 'package:progettotesi/src/global_widgets/button_custom.dart';
 
 class DialogCustom {
-  static void confirmDrawDialog(
-      BuildContext context, DrawPageController controller, var index) {
+  static void confirmDrawDialog(BuildContext context, var index) {
+    DrawPageController controller = Get.find();
     AwesomeDialog(
       context: context,
       dialogType: DialogType.info,
@@ -31,12 +31,15 @@ class DialogCustom {
         buttonColor: AppTheme.colorSuccess,
         onPressed: () {
           Get.back();
-          controller.saveDrawWidget(drawnImage(controller)).then((value) {
+          controller.saveDrawWidget(drawnImage()).then((value) async {
             bool result = controller.compareImage();
-            controller.saveResult(result, index);
-            result
-                ? DialogCustom.successDialog(context, controller, index)
-                : DialogCustom.failDialog(context, controller, index);
+            await controller.saveResult(result, index).then((value) {
+              if (value) {
+                result
+                    ? DialogCustom.successDialog(context, index)
+                    : DialogCustom.failDialog(context, index);
+              }
+            });
           });
         },
       ),
@@ -48,7 +51,7 @@ class DialogCustom {
         buttonColor: AppTheme.colorDanger,
         onPressed: () {
           controller.scribbleNotifier[index].clear();
-          controller.drawPoints.clear();
+          //controller.drawPoints.clear();
           Get.back();
         },
       ),
@@ -93,8 +96,8 @@ class DialogCustom {
     ).show();
   }
 
-  static void successDialog(
-      BuildContext context, DrawPageController controller, var index) {
+  static void successDialog(BuildContext context, var index) {
+    DrawPageController controller = Get.find();
     AwesomeDialog(
       context: context,
       dialogType: DialogType.success,
@@ -116,12 +119,12 @@ class DialogCustom {
         paddingHorizontal: 0,
         buttonColor: Colors.black,
         onPressed: () async {
-          controller.scribbleNotifier[index].clear();
-          controller.isExpanded.value = false;
-          controller.isDrawSaved.value = false;
-          controller.isWidgetSaved.value = false;
-          Get.offAllNamed('/selectionView',
-              arguments: await ApiService().getAllPersistenceData());
+          controller.resetControllerValues(index);
+          var savedData = await ApiService().getAllPersistenceData();
+          if (savedData != null) {
+            Get.offAllNamed('/selectionView', arguments: savedData);
+          }
+          Get.back();
         },
       ),
       btnCancel: ButtonCustom(
@@ -132,8 +135,7 @@ class DialogCustom {
         paddingHorizontal: 0,
         buttonColor: Colors.black,
         onPressed: () {
-          controller.scribbleNotifier[index].clear();
-          controller.isExpanded.value = false;
+          controller.resetControllerValues(index);
           Get.back();
         },
       ),
@@ -161,8 +163,8 @@ class DialogCustom {
     ).show();
   }
 
-  static void failDialog(
-      BuildContext context, DrawPageController controller, var index) {
+  static void failDialog(BuildContext context, var index) {
+    DrawPageController controller = Get.find();
     AwesomeDialog(
       context: context,
       dialogType: DialogType.error,
@@ -184,10 +186,7 @@ class DialogCustom {
         paddingHorizontal: 0,
         buttonColor: Colors.black,
         onPressed: () async {
-          controller.scribbleNotifier[index].clear();
-          controller.isExpanded.value = false;
-          controller.isDrawSaved.value = false;
-          controller.isWidgetSaved.value = false;
+          controller.resetControllerValues(index);
           Get.offAllNamed('/selectionView',
               arguments: await ApiService().getAllPersistenceData());
         },
@@ -228,7 +227,8 @@ class DialogCustom {
     ).show();
   }
 
-  static drawnImage(DrawPageController controller) {
+  static drawnImage() {
+    DrawPageController controller = Get.find();
     return Container(
         height: 140.h,
         width: 90.w,

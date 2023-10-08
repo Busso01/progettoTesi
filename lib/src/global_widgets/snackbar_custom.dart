@@ -1,3 +1,4 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:progettotesi/core/theme/theme.dart';
@@ -53,24 +54,29 @@ void snackbarCustomDanger(String title, String message) {
     message,
     titleText: Text(
       title,
-      style: const TextStyle(
+      textAlign: TextAlign.center,
+      style: TextStyle(
         fontFamily: 'Aeonik',
         fontWeight: FontWeight.bold,
-        fontSize: 22,
+        fontSize: 16.sp,
       ),
     ),
     messageText: Text(
       message,
-      style: const TextStyle(
+      textAlign: TextAlign.center,
+      style: TextStyle(
         fontFamily: 'Aeonik',
         fontWeight: FontWeight.normal,
-        fontSize: 18,
+        fontSize: 13.sp,
       ),
     ),
-    icon: const Icon(
-      Icons.dangerous,
-      color: AppTheme.colorDanger,
-      size: 40,
+    icon: Padding(
+      padding: EdgeInsets.only(left: 8.w),
+      child: Icon(
+        Icons.dangerous_rounded,
+        color: AppTheme.colorDanger,
+        size: 30.sp,
+      ),
     ),
     animationDuration: const Duration(milliseconds: 300),
     duration: const Duration(milliseconds: 3000),

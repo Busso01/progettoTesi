@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:progettotesi/core/models/saved_data.dart';
 import 'package:progettotesi/core/services/api_service.dart';
 import 'package:progettotesi/src/global_widgets/button_custom.dart';
 
@@ -45,18 +44,22 @@ class HomePage extends StatelessWidget {
                     'assets/images/notebook.png',
                   ),
                 ),
-                ButtonCustom(
-                    width: 200.w,
-                    height: 70.h,
-                    fontSize: 16.sp,
-                    buttonText: "Gioca!",
-                    marginBottom: 40,
-                    onPressed: () async {
-                      var savedData =
-                          await ApiService().getAllPersistenceData();
-                      print(savedData);
-                      Get.toNamed('/selectionView', arguments: savedData);
-                    }),
+                Hero(
+                  tag: 'home',
+                  child: ButtonCustom(
+                      width: 200.w,
+                      height: 70.h,
+                      fontSize: 16.sp,
+                      buttonText: "Gioca!",
+                      marginBottom: 40,
+                      onPressed: () async {
+                        var savedData =
+                            await ApiService().getAllPersistenceData();
+                        if (savedData != null) {
+                          Get.toNamed('/selectionView', arguments: savedData);
+                        }
+                      }),
+                ),
                 ButtonCustom(
                   width: 200.w,
                   height: 70.h,
