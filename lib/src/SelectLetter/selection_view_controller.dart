@@ -19,14 +19,13 @@ class SelectionViewController extends GetxController {
   }
 
   int checkSavedDatas(int index) {
-    bool allDone = false;
+    bool allDone = true;
     bool atLeastOne = false;
 
     if (savedData[index] != null) {
       for (bool element in savedData[index]!.results) {
         if (element == true) {
           atLeastOne = true;
-          if (!allDone) allDone = true;
         } else {
           allDone = false;
         }

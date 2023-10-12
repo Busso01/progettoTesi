@@ -77,14 +77,19 @@ class DrawCard extends GetView<DrawPageController> {
           duration: const Duration(milliseconds: 300),
           bottom: 90.h,
           child: GestureDetector(
-            onTap: controller.openDetailPage,
+            onTap: () {
+              controller.checkResult(index)
+                  ? DialogCustom.drawAlreadyDoneDialog(context)
+                  : controller.openDetailPage();
+            },
             child: Container(
               height: height,
               width: width,
               decoration: BoxDecoration(
                 //border: controller.isAlreadyDone(index) == 2 ? Border.all(color: AppTheme.colorSuccess, width: 2.w) : controller.isAlreadyDone(index) == 1 ? ,
                 border: Border.all(
-                    color: controller.drawAlreadyDone(index) == 2
+                    color: controller.drawAlreadyDone(index) == 2 &&
+                            !controller.isExpanded.value
                         ? AppTheme.colorSuccess
                         : Colors.transparent,
                     width: 2.w),
@@ -103,7 +108,7 @@ class DrawCard extends GetView<DrawPageController> {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(
-                    height: 50.h,
+                    height: 45.h,
                   ),
                   Flexible(
                     child: AnimatedSwitcher(
@@ -125,6 +130,16 @@ class DrawCard extends GetView<DrawPageController> {
   Widget closedDrawCard() => Column(
         children: [
           letter(),
+          SizedBox(
+            height: 35.h,
+          ),
+          controller.drawAlreadyDone(index) == 2
+              ? Icon(
+                  Icons.check_circle_outline_rounded,
+                  color: AppTheme.colorSuccess,
+                  size: 28.sp,
+                )
+              : Container(),
         ],
       );
 
@@ -176,16 +191,8 @@ class DrawCard extends GetView<DrawPageController> {
             border: Border.all(width: 1.sp),
             borderRadius: BorderRadius.all(Radius.circular(20.r)),
           ),
-          child: Listener(
-            onPointerMove: (event) {
-              controller.drawPoints.last.add(event.position);
-            },
-            onPointerDown: ((event) {
-              controller.drawPoints.add([]);
-            }),
-            child: Scribble(
-              notifier: controller.scribbleNotifier[index],
-            ),
+          child: Scribble(
+            notifier: controller.scribbleNotifier[index],
           )),
     );
   }

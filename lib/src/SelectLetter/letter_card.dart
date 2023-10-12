@@ -33,7 +33,7 @@ class LetterCard extends GetView<SelectionViewController> {
         ),
       ),
       child: InkWell(
-        onTap: openContainer,
+        //onTap: openContainer,
         child: Center(
           child: RichText(
             text: TextSpan(

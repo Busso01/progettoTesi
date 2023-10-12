@@ -13,7 +13,7 @@ class AppTheme {
   static const colorSenary = Color.fromARGB(255, 51, 137, 250);
   static const colorSeptenary = Color.fromARGB(255, 17, 88, 255);
 
-  static const colorSuccess = Color.fromARGB(255, 35, 215, 80);
+  static const colorSuccess = Color.fromARGB(255, 12, 169, 51);
   static const colorDanger = Color.fromARGB(255, 202, 24, 24);
   static const colorWarning = Color.fromARGB(255, 222, 218, 13);
   static const colorAnthracite = Color.fromARGB(255, 22, 22, 22);

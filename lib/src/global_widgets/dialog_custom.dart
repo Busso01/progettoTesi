@@ -50,7 +50,7 @@ class DialogCustom {
         paddingHorizontal: 0,
         buttonColor: AppTheme.colorDanger,
         onPressed: () {
-          controller.scribbleNotifier[index].clear();
+          //controller.scribbleNotifier[index].clear();
           //controller.drawPoints.clear();
           Get.back();
         },
@@ -119,7 +119,7 @@ class DialogCustom {
         paddingHorizontal: 0,
         buttonColor: Colors.black,
         onPressed: () async {
-          controller.resetControllerValues(index);
+          controller.resetControllerValues();
           var savedData = await ApiService().getAllPersistenceData();
           if (savedData != null) {
             Get.offAllNamed('/selectionView', arguments: savedData);
@@ -135,7 +135,7 @@ class DialogCustom {
         paddingHorizontal: 0,
         buttonColor: Colors.black,
         onPressed: () {
-          controller.resetControllerValues(index);
+          controller.resetControllerValues();
           Get.back();
         },
       ),
@@ -178,18 +178,21 @@ class DialogCustom {
       ).r,
       dismissOnTouchOutside: false,
       dismissOnBackKeyPress: false,
-      btnOk: ButtonCustom(
-        fontSize: 12.sp,
-        buttonText: "Nuova lettera",
-        height: 50.h,
-        width: 90.w,
-        paddingHorizontal: 0,
-        buttonColor: Colors.black,
-        onPressed: () async {
-          controller.resetControllerValues(index);
-          Get.offAllNamed('/selectionView',
-              arguments: await ApiService().getAllPersistenceData());
-        },
+      btnOk: Hero(
+        tag: 'home',
+        child: ButtonCustom(
+          fontSize: 12.sp,
+          buttonText: "Nuova lettera",
+          height: 50.h,
+          width: 90.w,
+          paddingHorizontal: 0,
+          buttonColor: Colors.black,
+          onPressed: () async {
+            controller.resetControllerValues();
+            Get.offAllNamed('/selectionView',
+                arguments: await ApiService().getAllPersistenceData());
+          },
+        ),
       ),
       btnCancel: ButtonCustom(
         fontSize: 12.sp,
@@ -223,6 +226,72 @@ class DialogCustom {
       animType: AnimType.bottomSlide,
       title: 'Insufficiente!',
       desc: 'Prova a scrivere meglio la lettera',
+      showCloseIcon: true,
+    ).show();
+  }
+
+  static void drawAlreadyDoneDialog(BuildContext context) {
+    DrawPageController controller = Get.find();
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.warning,
+      borderSide: BorderSide(
+        color: AppTheme.colorWarning,
+        width: 2.h,
+      ),
+      width: MediaQuery.of(context).size.width * 0.70,
+      buttonsBorderRadius: const BorderRadius.all(
+        Radius.circular(10),
+      ).r,
+      dismissOnTouchOutside: false,
+      dismissOnBackKeyPress: false,
+      btnOk: Hero(
+        tag: 'home',
+        child: ButtonCustom(
+          fontSize: 12.sp,
+          buttonText: "Prosegui",
+          height: 50.h,
+          width: 90.w,
+          paddingHorizontal: 0,
+          buttonColor: Colors.black,
+          onPressed: () {
+            controller.openDetailPage();
+            Get.back();
+          },
+        ),
+      ),
+      btnCancel: ButtonCustom(
+        fontSize: 12.sp,
+        buttonText: "Annulla",
+        height: 50.h,
+        width: 90.w,
+        paddingHorizontal: 0,
+        buttonColor: Colors.black,
+        onPressed: () {
+          Get.back();
+        },
+      ),
+      isDense: true,
+      padding: const EdgeInsets.all(8).w,
+      dialogBorderRadius: BorderRadius.all(const Radius.circular(20).r),
+      titleTextStyle: TextStyle(
+        color: AppTheme.colorTextBlack,
+        fontFamily: 'Aeonik',
+        fontSize: 24.sp,
+        fontWeight: FontWeight.w700,
+      ),
+      descTextStyle: TextStyle(
+        color: AppTheme.colorTextBlack,
+        fontFamily: 'Aeonik',
+        fontSize: 15.sp,
+        fontWeight: FontWeight.w400,
+      ),
+      enableEnterKey: true,
+      headerAnimationLoop: false,
+      animType: AnimType.bottomSlide,
+      title: 'Lettera già completata',
+      desc:
+          'Hai già completato la lettera con successo, se confermi di nuovo sovrascriverai i dati',
       showCloseIcon: true,
     ).show();
   }

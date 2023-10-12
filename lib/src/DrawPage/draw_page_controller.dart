@@ -3,7 +3,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:progettotesi/core/models/letters_path.dart';
 import 'package:progettotesi/core/models/saved_data.dart';
+import 'package:progettotesi/core/models/saved_letters_path.dart';
 import 'package:progettotesi/core/services/api_service.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:scribble/scribble.dart';
@@ -20,13 +22,16 @@ class DrawPageController extends GetxController {
   ScreenshotController screenshotController = ScreenshotController();
   PageController pageController = PageController(viewportFraction: 0.8);
 
-  List<List<Offset>> drawPoints = [];
+  List<double> drawPointsX = [];
+  List<double> drawPointsY = [];
 
   Uint8List? widget;
   Uint8List? draw;
 
   img.Image? drawImage;
   img.Image? widgetImage;
+
+  SavedLetterPath? paths;
 
   var isDrawSaved = false.obs;
   var isWidgetSaved = false.obs;
@@ -61,6 +66,29 @@ class DrawPageController extends GetxController {
 
   Future<bool> saveDraw(int index) async {
     if (scribbleNotifier[index].currentSketch.lines.isNotEmpty) {
+      try {
+        // List list = [];
+        // for (int i = 0; i < 26; i++) {
+        //   LettersPath path = LettersPath(
+        //       letter: 'A',
+        //       capitalBlockLetter:
+        //           scribbleNotifier[index].currentSketch.toJson());
+        //   list.add(path);
+        // }
+        // String pathToJson = letterPathToJson(path);
+        // SavedLetterPath savedLetterPath =
+        //     SavedLetterPath(letterPath: list.cast());
+        // String savedPathJson = savedLetterPathToJson(savedLetterPath);
+
+        // list.clear();
+        // list = savedLetterPathFromJson(savedPathJson).letterPath;
+        // List<LettersPath> paths =
+        //     List<LettersPath>.from(list.map((e) => LettersPath.fromJson(e)));
+        // Sketch s = Sketch.fromJson(paths[0].capitalBlockLetter);
+      } catch (e) {
+        print(e.toString());
+      }
+
       var image = await scribbleNotifier[index].renderImage(pixelRatio: 1);
       draw = image.buffer.asUint8List();
       isDrawSaved.value = true;
@@ -74,7 +102,7 @@ class DrawPageController extends GetxController {
       isExpanded.value = true;
     } else {
       isExpanded.value = false;
-      clearAllScribbles();
+      //clearAllScribbles();
     }
   }
 
@@ -85,8 +113,8 @@ class DrawPageController extends GetxController {
     scribbleNotifier[3].clear();
   }
 
-  void resetControllerValues(int index) {
-    scribbleNotifier[index].clear();
+  void resetControllerValues() {
+    clearAllScribbles();
     isExpanded.value = false;
     isDrawSaved.value = false;
     isWidgetSaved.value = false;
@@ -123,6 +151,15 @@ class DrawPageController extends GetxController {
       case null:
         return 0;
     }
+  }
+
+  bool checkResult(int letterIndex) {
+    if (!isExpanded.value) {
+      if (drawAlreadyDone(letterIndex) == 2) {
+        return true;
+      }
+    }
+    return false;
   }
 
   // void compareImage() async {
@@ -237,4 +274,13 @@ class DrawPageController extends GetxController {
   //   }
   //   print(isCorrect);
   // }
+
+  void saveForJson() {
+    LettersPath lettersPath = LettersPath(
+        letter: selectedLetterIndex,
+        capitalBlockLetter: scribbleNotifier[0].currentSketch.toJson(),
+        lowerCaseBlockLetter: scribbleNotifier[1].currentSketch.toJson(),
+        capitalItalic: scribbleNotifier[2].currentSketch.toJson(),
+        lowerCaseItalic: scribbleNotifier[3].currentSketch.toJson());
+  }
 }

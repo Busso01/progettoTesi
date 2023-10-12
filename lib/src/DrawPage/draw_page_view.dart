@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:progettotesi/src/DrawPage/draw_card.dart';
 import 'package:progettotesi/src/DrawPage/draw_page_controller.dart';
+import 'package:progettotesi/src/global_widgets/button_custom.dart';
 import '../../core/theme/theme.dart';
 
 class DrawPageView extends GetView<DrawPageController> {
@@ -10,13 +11,16 @@ class DrawPageView extends GetView<DrawPageController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: buildAppBar(),
-      body: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+    return Hero(
+      tag: 'home',
+      child: Scaffold(
+        appBar: buildAppBar(),
+        body: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+          ),
+          child: buildBody(context),
         ),
-        child: buildBody(context),
       ),
     );
   }
@@ -41,12 +45,7 @@ class DrawPageView extends GetView<DrawPageController> {
             color: Colors.white,
           ),
           onPressed: () {
-            controller.isExpanded.value = false;
-            controller.isDrawSaved.value = false;
-            controller.isWidgetSaved.value = false;
-            for (int i = 0; i < 4; i++) {
-              controller.scribbleNotifier[i].clear();
-            }
+            controller.resetControllerValues();
             Get.back();
           },
         ),
@@ -88,6 +87,9 @@ class DrawPageView extends GetView<DrawPageController> {
               style: AppTheme.normalContentTextStyle,
             ),
           ),
+          ButtonCustom(buttonText: 'SaveForJson', onPressed: (){
+            
+          },),
           // Obx(() => controller.isDrawSaved.value
           //     ? Image.memory(controller.drawImage!)
           //     : Container()),
