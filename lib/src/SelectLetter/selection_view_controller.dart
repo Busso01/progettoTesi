@@ -12,7 +12,7 @@ class SelectionViewController extends GetxController {
 
   List<bool>? getLetterCardInfo(int letterIndex) {
     if (savedData[letterIndex] != null) {
-      return savedData[letterIndex]?.results;
+      return savedData[letterIndex]?.compareResults;
     } else {
       return null;
     }
@@ -23,7 +23,7 @@ class SelectionViewController extends GetxController {
     bool atLeastOne = false;
 
     if (savedData[index] != null) {
-      for (bool element in savedData[index]!.results) {
+      for (bool element in savedData[index]!.compareResults) {
         if (element == true) {
           atLeastOne = true;
         } else {

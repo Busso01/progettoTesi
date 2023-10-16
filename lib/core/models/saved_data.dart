@@ -3,8 +3,12 @@ part 'saved_data.g.dart';
 
 @collection
 class SavedData {
-  SavedData({required this.letterIndex, required this.results});
+  SavedData(
+      {required this.trajectories,
+      required this.letterIndex,
+      required this.compareResults});
 
   Id letterIndex;
-  List<bool> results;
+  List<bool> compareResults;
+  List<bool> trajectories;
 }

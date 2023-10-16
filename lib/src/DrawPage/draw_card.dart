@@ -225,14 +225,14 @@ class DrawCard extends GetView<DrawPageController> {
                           style: TextStyle(
                               color: Colors.black,
                               fontSize: 40.sp,
-                              fontFamily: 'Handlee'),
+                              fontFamily: 'Dancing'),
                         )
                       : Text(
                           controller.selectedLetter.toLowerCase(),
                           style: TextStyle(
                               color: Colors.black,
                               fontSize: 40.sp,
-                              fontFamily: 'Handlee'),
+                              fontFamily: 'Dancing'),
                         ),
         ),
       );

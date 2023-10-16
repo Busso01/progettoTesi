@@ -77,19 +77,34 @@ class DrawPageView extends GetView<DrawPageController> {
                   : null,
             ),
           ),
-          Padding(
-            padding: EdgeInsets.only(top: 40.h),
-            child: Text(
-              controller.isExpanded.value
-                  ? 'Clicca sul lato della carta per \ntornare alla selezione'
-                  : '',
-              textAlign: TextAlign.center,
-              style: AppTheme.normalContentTextStyle,
-            ),
+          // Padding(
+          //   padding: EdgeInsets.only(top: 40.h),
+          //   child: Text(
+          //     controller.isExpanded.value
+          //         ? 'Clicca sul lato della carta per \ntornare alla selezione'
+          //         : '',
+          //     textAlign: TextAlign.center,
+          //     style: AppTheme.normalContentTextStyle,
+          //   ),
+          // ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ButtonCustom(
+                marginTop: 20.h,
+                buttonText: 'Print Json',
+                fontSize: 14.sp,
+                onPressed: () {
+                  controller.printJson();
+                },
+                paddingHorizontal: 0,
+                paddingVertical: 0,
+                width: 100.w,
+                height: 50.h,
+              ),
+            ],
           ),
-          ButtonCustom(buttonText: 'SaveForJson', onPressed: (){
-            
-          },),
+
           // Obx(() => controller.isDrawSaved.value
           //     ? Image.memory(controller.drawImage!)
           //     : Container()),

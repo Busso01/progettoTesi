@@ -33,11 +33,20 @@ class DialogCustom {
           Get.back();
           controller.saveDrawWidget(drawnImage()).then((value) async {
             bool result = controller.compareImage();
-            await controller.saveResult(result, index).then((value) {
+            bool trajectories = await controller.checkLetterPath(index);
+            await controller
+                .saveResult(result, index, trajectories)
+                .then((value) {
               if (value) {
-                result
-                    ? DialogCustom.successDialog(context, index)
-                    : DialogCustom.failDialog(context, index);
+                if (result && trajectories) {
+                  DialogCustom.successDialog(context, index);
+                } else if (!result && !trajectories) {
+                  DialogCustom.failDialog(context, index);
+                } else if (result) {
+                  DialogCustom.onlyCompareDialog(context, index);
+                } else if (trajectories) {
+                  DialogCustom.onlyPathDialog(context, index);
+                }
               }
             });
           });
@@ -304,5 +313,141 @@ class DialogCustom {
         decoration:
             const BoxDecoration(color: Color.fromARGB(255, 207, 207, 207)),
         child: Image.memory(controller.draw!));
+  }
+
+  static void onlyCompareDialog(BuildContext context, var index) {
+    DrawPageController controller = Get.find();
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.warning,
+      borderSide: BorderSide(
+        color: AppTheme.colorWarning,
+        width: 2.h,
+      ),
+      width: MediaQuery.of(context).size.width * 0.70,
+      buttonsBorderRadius: const BorderRadius.all(
+        Radius.circular(10),
+      ).r,
+      dismissOnTouchOutside: false,
+      dismissOnBackKeyPress: false,
+      btnOk: ButtonCustom(
+        fontSize: 12.sp,
+        buttonText: "Nuova lettera",
+        height: 50.h,
+        width: 90.w,
+        paddingHorizontal: 0,
+        buttonColor: Colors.black,
+        onPressed: () async {
+          controller.resetControllerValues();
+          var savedData = await ApiService().getAllPersistenceData();
+          if (savedData != null) {
+            Get.offAllNamed('/selectionView', arguments: savedData);
+          }
+          Get.back();
+        },
+      ),
+      btnCancel: ButtonCustom(
+        fontSize: 12.sp,
+        buttonText: "Cambia Stile",
+        height: 50.h,
+        width: 90.w,
+        paddingHorizontal: 0,
+        buttonColor: Colors.black,
+        onPressed: () {
+          controller.resetControllerValues();
+          Get.back();
+        },
+      ),
+      isDense: true,
+      padding: const EdgeInsets.all(8).w,
+      dialogBorderRadius: BorderRadius.all(const Radius.circular(20).r),
+      titleTextStyle: TextStyle(
+        color: AppTheme.colorTextBlack,
+        fontFamily: 'Aeonik',
+        fontSize: 30.sp,
+        fontWeight: FontWeight.w700,
+      ),
+      descTextStyle: TextStyle(
+        color: AppTheme.colorTextBlack,
+        fontFamily: 'Aeonik',
+        fontSize: 15.sp,
+        fontWeight: FontWeight.w400,
+      ),
+      enableEnterKey: true,
+      headerAnimationLoop: false,
+      animType: AnimType.bottomSlide,
+      title: 'Buono!',
+      desc:
+          'La lettera è stata scritta con una buona accuratezza, ma non nel modo corretto',
+      showCloseIcon: false,
+    ).show();
+  }
+
+  static void onlyPathDialog(BuildContext context, var index) {
+    DrawPageController controller = Get.find();
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.warning,
+      borderSide: BorderSide(
+        color: AppTheme.colorWarning,
+        width: 2.h,
+      ),
+      width: MediaQuery.of(context).size.width * 0.70,
+      buttonsBorderRadius: const BorderRadius.all(
+        Radius.circular(10),
+      ).r,
+      dismissOnTouchOutside: false,
+      dismissOnBackKeyPress: false,
+      btnOk: ButtonCustom(
+        fontSize: 12.sp,
+        buttonText: "Nuova lettera",
+        height: 50.h,
+        width: 90.w,
+        paddingHorizontal: 0,
+        buttonColor: Colors.black,
+        onPressed: () async {
+          controller.resetControllerValues();
+          var savedData = await ApiService().getAllPersistenceData();
+          if (savedData != null) {
+            Get.offAllNamed('/selectionView', arguments: savedData);
+          }
+          Get.back();
+        },
+      ),
+      btnCancel: ButtonCustom(
+        fontSize: 12.sp,
+        buttonText: "Cambia Stile",
+        height: 50.h,
+        width: 90.w,
+        paddingHorizontal: 0,
+        buttonColor: Colors.black,
+        onPressed: () {
+          controller.resetControllerValues();
+          Get.back();
+        },
+      ),
+      isDense: true,
+      padding: const EdgeInsets.all(8).w,
+      dialogBorderRadius: BorderRadius.all(const Radius.circular(20).r),
+      titleTextStyle: TextStyle(
+        color: AppTheme.colorTextBlack,
+        fontFamily: 'Aeonik',
+        fontSize: 30.sp,
+        fontWeight: FontWeight.w700,
+      ),
+      descTextStyle: TextStyle(
+        color: AppTheme.colorTextBlack,
+        fontFamily: 'Aeonik',
+        fontSize: 15.sp,
+        fontWeight: FontWeight.w400,
+      ),
+      enableEnterKey: true,
+      headerAnimationLoop: false,
+      animType: AnimType.bottomSlide,
+      title: 'Buono!',
+      desc:
+          'La lettera è stata scritta nel modo giusto, ma non era abbastanza precisa',
+      showCloseIcon: false,
+    ).show();
   }
 }

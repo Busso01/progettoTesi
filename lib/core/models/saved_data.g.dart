@@ -17,9 +17,14 @@ const SavedDataSchema = CollectionSchema(
   name: r'SavedData',
   id: -6121529716315233452,
   properties: {
-    r'results': PropertySchema(
+    r'compareResults': PropertySchema(
       id: 0,
-      name: r'results',
+      name: r'compareResults',
+      type: IsarType.boolList,
+    ),
+    r'trajectories': PropertySchema(
+      id: 1,
+      name: r'trajectories',
       type: IsarType.boolList,
     )
   },
@@ -43,7 +48,8 @@ int _savedDataEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  bytesCount += 3 + object.results.length;
+  bytesCount += 3 + object.compareResults.length;
+  bytesCount += 3 + object.trajectories.length;
   return bytesCount;
 }
 
@@ -53,7 +59,8 @@ void _savedDataSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeBoolList(offsets[0], object.results);
+  writer.writeBoolList(offsets[0], object.compareResults);
+  writer.writeBoolList(offsets[1], object.trajectories);
 }
 
 SavedData _savedDataDeserialize(
@@ -63,8 +70,9 @@ SavedData _savedDataDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = SavedData(
+    compareResults: reader.readBoolList(offsets[0]) ?? [],
     letterIndex: id,
-    results: reader.readBoolList(offsets[0]) ?? [],
+    trajectories: reader.readBoolList(offsets[1]) ?? [],
   );
   return object;
 }
@@ -77,6 +85,8 @@ P _savedDataDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
+      return (reader.readBoolList(offset) ?? []) as P;
+    case 1:
       return (reader.readBoolList(offset) ?? []) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -180,6 +190,105 @@ extension SavedDataQueryWhere
 
 extension SavedDataQueryFilter
     on QueryBuilder<SavedData, SavedData, QFilterCondition> {
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      compareResultsElementEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'compareResults',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      compareResultsLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'compareResults',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      compareResultsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'compareResults',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      compareResultsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'compareResults',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      compareResultsLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'compareResults',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      compareResultsLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'compareResults',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      compareResultsLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'compareResults',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+
   QueryBuilder<SavedData, SavedData, QAfterFilterCondition> letterIndexEqualTo(
       Id value) {
     return QueryBuilder.apply(this, (query) {
@@ -235,20 +344,20 @@ extension SavedDataQueryFilter
   }
 
   QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
-      resultsElementEqualTo(bool value) {
+      trajectoriesElementEqualTo(bool value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'results',
+        property: r'trajectories',
         value: value,
       ));
     });
   }
 
   QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
-      resultsLengthEqualTo(int length) {
+      trajectoriesLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'results',
+        r'trajectories',
         length,
         true,
         length,
@@ -257,10 +366,11 @@ extension SavedDataQueryFilter
     });
   }
 
-  QueryBuilder<SavedData, SavedData, QAfterFilterCondition> resultsIsEmpty() {
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      trajectoriesIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'results',
+        r'trajectories',
         0,
         true,
         0,
@@ -270,10 +380,10 @@ extension SavedDataQueryFilter
   }
 
   QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
-      resultsIsNotEmpty() {
+      trajectoriesIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'results',
+        r'trajectories',
         0,
         false,
         999999,
@@ -283,13 +393,13 @@ extension SavedDataQueryFilter
   }
 
   QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
-      resultsLengthLessThan(
+      trajectoriesLengthLessThan(
     int length, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'results',
+        r'trajectories',
         0,
         true,
         length,
@@ -299,13 +409,13 @@ extension SavedDataQueryFilter
   }
 
   QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
-      resultsLengthGreaterThan(
+      trajectoriesLengthGreaterThan(
     int length, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'results',
+        r'trajectories',
         length,
         include,
         999999,
@@ -315,7 +425,7 @@ extension SavedDataQueryFilter
   }
 
   QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
-      resultsLengthBetween(
+      trajectoriesLengthBetween(
     int lower,
     int upper, {
     bool includeLower = true,
@@ -323,7 +433,7 @@ extension SavedDataQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.listLength(
-        r'results',
+        r'trajectories',
         lower,
         includeLower,
         upper,
@@ -358,9 +468,15 @@ extension SavedDataQuerySortThenBy
 
 extension SavedDataQueryWhereDistinct
     on QueryBuilder<SavedData, SavedData, QDistinct> {
-  QueryBuilder<SavedData, SavedData, QDistinct> distinctByResults() {
+  QueryBuilder<SavedData, SavedData, QDistinct> distinctByCompareResults() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'results');
+      return query.addDistinctBy(r'compareResults');
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QDistinct> distinctByTrajectories() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'trajectories');
     });
   }
 }
@@ -373,9 +489,16 @@ extension SavedDataQueryProperty
     });
   }
 
-  QueryBuilder<SavedData, List<bool>, QQueryOperations> resultsProperty() {
+  QueryBuilder<SavedData, List<bool>, QQueryOperations>
+      compareResultsProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'results');
+      return query.addPropertyName(r'compareResults');
+    });
+  }
+
+  QueryBuilder<SavedData, List<bool>, QQueryOperations> trajectoriesProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'trajectories');
     });
   }
 }

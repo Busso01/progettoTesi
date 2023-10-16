@@ -1,15 +1,21 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:progettotesi/core/models/letters_path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:progettotesi/core/jsonLetterModel/letters_path.dart';
 import 'package:progettotesi/core/models/saved_data.dart';
-import 'package:progettotesi/core/models/saved_letters_path.dart';
+import 'package:progettotesi/core/jsonLetterModel/saved_letters_path.dart';
 import 'package:progettotesi/core/services/api_service.dart';
+import 'package:progettotesi/src/global_widgets/snackbar_custom.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:scribble/scribble.dart';
 import 'package:image/image.dart' as img;
+import 'package:flutter/services.dart' show rootBundle;
 
 class DrawPageController extends GetxController {
   List<ScribbleNotifier> scribbleNotifier = [
@@ -31,7 +37,7 @@ class DrawPageController extends GetxController {
   img.Image? drawImage;
   img.Image? widgetImage;
 
-  SavedLetterPath? paths;
+  Map<String, dynamic> paths = {};
 
   var isDrawSaved = false.obs;
   var isWidgetSaved = false.obs;
@@ -67,14 +73,6 @@ class DrawPageController extends GetxController {
   Future<bool> saveDraw(int index) async {
     if (scribbleNotifier[index].currentSketch.lines.isNotEmpty) {
       try {
-        // List list = [];
-        // for (int i = 0; i < 26; i++) {
-        //   LettersPath path = LettersPath(
-        //       letter: 'A',
-        //       capitalBlockLetter:
-        //           scribbleNotifier[index].currentSketch.toJson());
-        //   list.add(path);
-        // }
         // String pathToJson = letterPathToJson(path);
         // SavedLetterPath savedLetterPath =
         //     SavedLetterPath(letterPath: list.cast());
@@ -137,13 +135,15 @@ class DrawPageController extends GetxController {
   double selectStrokeWidth(int index) {
     if (index == 0 || index == 1) {
       return 1.25.sp;
+    } else if (index == 3) {
+      return 1.0.sp;
     } else {
-      return 1.1.sp;
+      return 1.05.sp;
     }
   }
 
   int drawAlreadyDone(int index) {
-    switch (savedData?.results[index]) {
+    switch (savedData?.compareResults[index]) {
       case true:
         return 2;
       case false:
@@ -215,72 +215,124 @@ class DrawPageController extends GetxController {
       }
     }
 
-    print('draw: $numBlackPixelDrawImage');
-    print('widget: $numBlackPixelWidgetImage');
-    print('match: $numPixelMatching');
-
     if (numBlackPixelDrawImage >= numBlackPixelWidgetImage * 0.45 &&
-        numBlackPixelDrawImage <= numBlackPixelWidgetImage * 1.05) {
-      if (numPixelMatching >= numBlackPixelWidgetImage * 0.45) {
+        numBlackPixelDrawImage <= numBlackPixelWidgetImage * 1.2) {
+      if (numPixelMatching >= numBlackPixelWidgetImage * 0.40) {
         return true;
       }
     }
     return false;
   }
 
-  Future<bool> saveResult(bool result, int index) async {
+  Future<bool> saveResult(bool result, int index, bool trajectories) async {
     bool success = false;
     if (savedData != null) {
-      savedData?.results[index] = result;
+      savedData?.compareResults[index] = result;
+      savedData?.trajectories[index] = trajectories;
       success = await ApiService().saveResultAPI(savedData!);
       return success;
     } else {
       List<bool> results = [false, false, false, false];
+      List<bool> trajectories = [false, false, false, false];
       results[index] = result;
-      savedData = SavedData(letterIndex: selectedLetterIndex, results: results);
+      savedData = SavedData(
+          letterIndex: selectedLetterIndex,
+          compareResults: results,
+          trajectories: trajectories);
       success = await ApiService().saveResultAPI(savedData!);
       return success;
     }
   }
 
-  // void checkStyle() {
-  //   bool isCorrect = false;
-  //   if (drawPoints.length != 2) {
-  //     print(isCorrect);
-  //   } else {
-  //     for (List<Offset> l in drawPoints) {
-  //       if (l.first.dx < l.last.dx) {
-  //         isCorrect = true;
-  //       } else {
-  //         isCorrect = false;
-  //       }
-  //     }
-  //   }
-  //   print(isCorrect);
-  // }
+  Future<bool> checkLetterPath(int index) async {
+    double dtw;
+    try {
+      Sketch? letter = await loadSketchFromJson(index);
+      Sketch draw = scribbleNotifier[index].currentSketch;
+      if (draw.lines.length != letter!.lines.length) {
+        return false;
+      } else {
+        for (int i = 0; i < letter.lines.length; i++) {
+          List<Point> drawLines = draw.lines[i].points;
+          List<Point> letterLines = letter.lines[i].points;
+          dtw = calculateDTW(drawLines, letterLines);
+          print('draw: ${drawLines.length}');
+          print('letter: ${letterLines.length}');
+          print('dtw: $dtw \n\n');
+          if (dtw > 3.25) {
+            return false;
+          }
+        }
+        return true;
+      }
+    } catch (e) {
+      print(e.toString());
+      snackbarCustomDanger('Errore controllo traiettoria',
+          'Si è verificato un errore nella verifica \n della traiettoria, riprovare');
+    }
+    return false;
+  }
 
-  // void checkStyle(int index) {
-  //   bool isCorrect = false;
-  //   if (scribbleNotifier[index].currentSketch.lines.length != 2) {
-  //     print(isCorrect);
-  //   } else {
-  //     for (SketchLine s in scribbleNotifier[index].currentSketch.lines) {
-  //       if (s.points.first.x < s.points.last.x) {
-  //         isCorrect = true;
-  //       } else {
-  //         isCorrect = false;
-  //       }
-  //     }
-  //   }
-  //   print(isCorrect);
-  // }
+  double calculateDTW(List<Point> drawLines, List<Point> letterLines) {
+    List<List> dtw = List.generate(drawLines.length,
+        (index) => List.generate(letterLines.length, (index) => 0.0));
+    double cost;
 
-  void saveForJson() {
+    for (int i = 0; i < drawLines.length; i++) {
+      for (int j = 0; j < letterLines.length; j++) {
+        dtw[i][j] = double.infinity;
+      }
+    }
+    dtw[0][0] = 0;
+    for (int i = 1; i < drawLines.length; i++) {
+      for (int j = 1; j < letterLines.length; j++) {
+        cost = sqrt(pow((drawLines[i].x - letterLines[j].x), 2) +
+            pow((drawLines[i].y - letterLines[j].y), 2));
+        dtw[i][j] =
+            cost + min(dtw[i - 1][j], min(dtw[i][j - 1], dtw[i - 1][j - 1]));
+      }
+    }
+
+    return sqrt(
+        dtw[drawLines.length - 1][letterLines.length - 1] / drawLines.length);
+  }
+
+  Future<Sketch?> loadSketchFromJson(int index) async {
+    String jsonString = await rootBundle.loadString('assets/path.json');
+    Map<String, dynamic> mapFromJson = jsonDecode(jsonString);
+    SavedLetterPath savedLetterPath = SavedLetterPath.fromJson(mapFromJson);
+    LettersPath lettersPath =
+        LettersPath.fromJson(savedLetterPath.letterPath['A']);
+
+    switch (index) {
+      case 0:
+        return Sketch.fromJson(lettersPath.capitalBlockLetter);
+      case 1:
+        return Sketch.fromJson(lettersPath.lowerCaseBlockLetter);
+      case 2:
+        return Sketch.fromJson(lettersPath.capitalItalic);
+      case 3:
+        return Sketch.fromJson(lettersPath.lowerCaseItalic);
+      default:
+        return null;
+    }
+  }
+
+  void printJson() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final path = directory.path;
+    final file = File('$path/path.json');
+
     LettersPath lettersPath = LettersPath(
-        letter: selectedLetterIndex,
         capitalBlockLetter: scribbleNotifier[0].currentSketch.toJson(),
         lowerCaseBlockLetter: scribbleNotifier[1].currentSketch.toJson(),
         capitalItalic: scribbleNotifier[2].currentSketch.toJson(),
         lowerCaseItalic: scribbleNotifier[3].currentSketch.toJson());
+    paths[selectedLetter] = lettersPath;
+
+    SavedLetterPath savedLetterPath = SavedLetterPath(letterPath: paths);
+    String savedPathJson = jsonEncode(savedLetterPath);
+
+    file.writeAsString(savedPathJson);
   }
 }

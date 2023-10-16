@@ -42,7 +42,7 @@ class LetterCard extends GetView<SelectionViewController> {
                 children: <TextSpan>[
                   TextSpan(
                     text: letter + letter.toLowerCase(),
-                    style: TextStyle(fontFamily: 'Handlee', fontSize: 30.sp),
+                    style: TextStyle(fontFamily: 'Dancing', fontSize: 30.sp),
                   )
                 ]),
           ),
