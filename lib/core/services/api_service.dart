@@ -44,4 +44,28 @@ class ApiService {
       return false;
     }
   }
+
+  Future<bool> removeAllPersistenceData() async {
+    Isar? isar;
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      isar = await Isar.open([SavedDataSchema], directory: dir.path);
+
+      for (int i = 0; i < 26; i++) {
+        var results = await isar.savedDatas.get(i);
+        if (results != null) {
+          await isar.writeTxn(() async {
+            await isar!.savedDatas.delete(results.letterIndex);
+          });
+        }
+      }
+      isar.close();
+      return true;
+    } catch (e) {
+      snackbarCustomDanger(
+          'Rimozione', 'Errore nella rimozione dei \n dati di salvataggio');
+      if (isar != null && isar.isOpen) isar.close();
+      return false;
+    }
+  }
 }

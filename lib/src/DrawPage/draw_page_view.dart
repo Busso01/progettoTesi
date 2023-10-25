@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:progettotesi/src/DrawPage/draw_card.dart';
 import 'package:progettotesi/src/DrawPage/draw_page_controller.dart';
+import 'package:progettotesi/src/SelectLetter/selection_view_controller.dart';
 import 'package:progettotesi/src/global_widgets/button_custom.dart';
 import '../../core/theme/theme.dart';
 
@@ -11,17 +12,9 @@ class DrawPageView extends GetView<DrawPageController> {
 
   @override
   Widget build(BuildContext context) {
-    return Hero(
-      tag: 'home',
-      child: Scaffold(
-        appBar: buildAppBar(),
-        body: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-          ),
-          child: buildBody(context),
-        ),
-      ),
+    return Scaffold(
+      appBar: buildAppBar(),
+      body: buildBody(context),
     );
   }
 
@@ -46,6 +39,9 @@ class DrawPageView extends GetView<DrawPageController> {
           ),
           onPressed: () {
             controller.resetControllerValues();
+            SelectionViewController selectionViewController = Get.find();
+            selectionViewController.savedData[controller.selectedLetterIndex] =
+                controller.savedDataSingleSet;
             Get.back();
           },
         ),

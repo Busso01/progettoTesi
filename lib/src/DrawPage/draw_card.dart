@@ -19,7 +19,8 @@ class DrawCard extends GetView<DrawPageController> {
   @override
   Widget build(BuildContext context) {
     var height = 390.h;
-    var width = 185.w;
+    var width = 195.w;
+    int dataSavedValue = controller.checkSavedData(index);
 
     return Stack(
       alignment: Alignment.bottomCenter,
@@ -54,7 +55,7 @@ class DrawCard extends GetView<DrawPageController> {
                   onPressed: () async {
                     await controller.saveDraw(index).then((drawNotEmpty) {
                       if (drawNotEmpty) {
-                        return controller.saveLetter(letter()).then((_) =>
+                        controller.saveLetter(letter()).then((_) =>
                             DialogCustom.confirmDrawDialog(context, index));
                       } else {
                         snackbarCustomDanger('Sezione disegno vuota',
@@ -73,8 +74,7 @@ class DrawCard extends GetView<DrawPageController> {
             ),
           ),
         ),
-        AnimatedPositioned(
-          duration: const Duration(milliseconds: 300),
+        Positioned(
           bottom: 90.h,
           child: GestureDetector(
             onTap: () {
@@ -88,10 +88,13 @@ class DrawCard extends GetView<DrawPageController> {
               decoration: BoxDecoration(
                 //border: controller.isAlreadyDone(index) == 2 ? Border.all(color: AppTheme.colorSuccess, width: 2.w) : controller.isAlreadyDone(index) == 1 ? ,
                 border: Border.all(
-                    color: controller.drawAlreadyDone(index) == 2 &&
-                            !controller.isExpanded.value
-                        ? AppTheme.colorSuccess
-                        : Colors.transparent,
+                    color: controller.isExpanded.value
+                        ? Colors.transparent
+                        : (dataSavedValue == 1
+                            ? AppTheme.colorSuccess
+                            : dataSavedValue == 2 || dataSavedValue == 3
+                                ? AppTheme.colorWarning
+                                : Colors.transparent),
                     width: 2.w),
                 color: const Color.fromARGB(255, 207, 207, 207),
                 borderRadius: BorderRadius.all(Radius.circular(25.r)),
@@ -108,7 +111,7 @@ class DrawCard extends GetView<DrawPageController> {
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(
-                    height: 45.h,
+                    height: 25.h,
                   ),
                   Flexible(
                     child: AnimatedSwitcher(
@@ -116,7 +119,7 @@ class DrawCard extends GetView<DrawPageController> {
                         reverseDuration: const Duration(milliseconds: 300),
                         child: controller.isExpanded.value
                             ? openedDrawCard()
-                            : closedDrawCard()),
+                            : closedDrawCard(dataSavedValue)),
                   ),
                 ],
               ),
@@ -127,19 +130,19 @@ class DrawCard extends GetView<DrawPageController> {
     );
   }
 
-  Widget closedDrawCard() => Column(
+  Widget closedDrawCard(int dataSavedValue) => Column(
         children: [
           letter(),
           SizedBox(
-            height: 35.h,
+            height: 10.h,
           ),
-          controller.drawAlreadyDone(index) == 2
-              ? Icon(
-                  Icons.check_circle_outline_rounded,
-                  color: AppTheme.colorSuccess,
-                  size: 28.sp,
-                )
-              : Container(),
+          dataSavedValue == 1
+              ? allCompletedWithSuccess()
+              : dataSavedValue == 2
+                  ? onlyAccuracyCompleted()
+                  : dataSavedValue == 3
+                      ? onlyPathCompleted()
+                      : allCompletedWithFail()
         ],
       );
 
@@ -175,10 +178,7 @@ class DrawCard extends GetView<DrawPageController> {
       );
 
   Widget drawSection() {
-    controller.scribbleNotifier[index]
-        .setStrokeWidth(controller.selectStrokeWidth(index));
-    controller.scribbleNotifier[index]
-        .setAllowedPointersMode(ScribblePointerMode.all);
+    controller.setScribbleNotifierSettings(index);
     return ClipRRect(
       borderRadius: BorderRadius.circular(20.r),
       child: Container(
@@ -236,4 +236,236 @@ class DrawCard extends GetView<DrawPageController> {
                         ),
         ),
       );
+
+  Widget allCompletedWithSuccess() {
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 25.w),
+          decoration: BoxDecoration(
+            border: Border.all(width: 1.sp, color: AppTheme.colorSuccess),
+            borderRadius: BorderRadius.circular(25.r),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.check_rounded,
+                color: AppTheme.colorSuccess,
+                size: 28.sp,
+              ),
+              SizedBox(
+                width: 5.w,
+              ),
+              Text(
+                'Accuratezza',
+                style: AppTheme.normalContentTextStyle,
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 10.h,
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 25.w),
+          decoration: BoxDecoration(
+            border: Border.all(width: 1.sp, color: AppTheme.colorSuccess),
+            borderRadius: BorderRadius.circular(25.r),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.check_rounded,
+                color: AppTheme.colorSuccess,
+                size: 28.sp,
+              ),
+              SizedBox(
+                width: 5.w,
+              ),
+              Text(
+                'Metodologia',
+                style: AppTheme.normalContentTextStyle,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget allCompletedWithFail() {
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 25.w),
+          decoration: BoxDecoration(
+            border: Border.all(width: 1.sp, color: AppTheme.colorDanger),
+            borderRadius: BorderRadius.circular(25.r),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.close_rounded,
+                color: AppTheme.colorDanger,
+                size: 28.sp,
+              ),
+              SizedBox(
+                width: 5.w,
+              ),
+              Text(
+                'Accuratezza',
+                style: AppTheme.normalContentTextStyle,
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 10.h,
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 25.w),
+          decoration: BoxDecoration(
+            border: Border.all(width: 1.sp, color: AppTheme.colorDanger),
+            borderRadius: BorderRadius.circular(25.r),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.close_rounded,
+                color: AppTheme.colorDanger,
+                size: 28.sp,
+              ),
+              SizedBox(
+                width: 5.w,
+              ),
+              Text(
+                'Metodologia',
+                style: AppTheme.normalContentTextStyle,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget onlyAccuracyCompleted() {
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 25.w),
+          decoration: BoxDecoration(
+            border: Border.all(width: 1.sp, color: AppTheme.colorSuccess),
+            borderRadius: BorderRadius.circular(25.r),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.check_rounded,
+                color: AppTheme.colorSuccess,
+                size: 28.sp,
+              ),
+              SizedBox(
+                width: 5.w,
+              ),
+              Text(
+                'Accuratezza',
+                style: AppTheme.normalContentTextStyle,
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 10.h,
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 25.w),
+          decoration: BoxDecoration(
+            border: Border.all(width: 1.sp, color: AppTheme.colorDanger),
+            borderRadius: BorderRadius.circular(25.r),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.close_rounded,
+                color: AppTheme.colorDanger,
+                size: 28.sp,
+              ),
+              SizedBox(
+                width: 5.w,
+              ),
+              Text(
+                'Metodologia',
+                style: AppTheme.normalContentTextStyle,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget onlyPathCompleted() {
+    return Column(
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 25.w),
+          decoration: BoxDecoration(
+            border: Border.all(width: 1.sp, color: AppTheme.colorDanger),
+            borderRadius: BorderRadius.circular(25.r),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.close_rounded,
+                color: AppTheme.colorDanger,
+                size: 28.sp,
+              ),
+              SizedBox(
+                width: 5.w,
+              ),
+              Text(
+                'Accuratezza',
+                style: AppTheme.normalContentTextStyle,
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 10.h,
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 25.w),
+          decoration: BoxDecoration(
+            border: Border.all(width: 1.sp, color: AppTheme.colorSuccess),
+            borderRadius: BorderRadius.circular(25.r),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.check_rounded,
+                color: AppTheme.colorSuccess,
+                size: 28.sp,
+              ),
+              SizedBox(
+                width: 5.w,
+              ),
+              Text(
+                'Metodologia',
+                style: AppTheme.normalContentTextStyle,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }

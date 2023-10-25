@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:progettotesi/src/DrawPage/draw_page_view.dart';
 import 'package:progettotesi/src/SelectLetter/selection_view.dart';
 import 'package:progettotesi/src/SelectLetter/selection_view_binding.dart';
+import 'package:progettotesi/src/SettingsPage/settings.dart';
+import 'package:progettotesi/src/SettingsPage/settings_binding.dart';
 
 import 'src/HomePage/home.dart';
 
@@ -40,6 +42,12 @@ class MyApp extends StatelessWidget {
                 name: '/drawPage',
                 page: () => const DrawPageView(),
                 transition: Transition.noTransition,
+              ),
+              GetPage(
+                name: '/settings',
+                page: () => const SettingsView(),
+                transition: Transition.noTransition,
+                binding: SettingsViewBinding(),
               )
             ]);
       },

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:progettotesi/core/models/saved_data.dart';
+import 'package:progettotesi/src/DrawPage/draw_page_controller.dart';
 
 class SelectionViewController extends GetxController {
   List<SavedData?> savedData = [];
@@ -8,14 +9,6 @@ class SelectionViewController extends GetxController {
   void onInit() {
     savedData = Get.arguments;
     super.onInit();
-  }
-
-  List<bool>? getLetterCardInfo(int letterIndex) {
-    if (savedData[letterIndex] != null) {
-      return savedData[letterIndex]?.compareResults;
-    } else {
-      return null;
-    }
   }
 
   int checkSavedDatas(int index) {
@@ -39,5 +32,25 @@ class SelectionViewController extends GetxController {
       }
     }
     return 0;
+  }
+
+  void initializeDrawPageController(int index) {
+    DrawPageController drawPageController = Get.put(DrawPageController());
+    drawPageController.selectedLetter = String.fromCharCode(index + 65);
+    drawPageController.selectedLetterIndex = index;
+
+    if (savedData[index] != null) {
+      drawPageController.savedDataSingleSet = savedData[index]!;
+    } else {
+      List<bool> defaultTrajectoriesValues = List.generate(4, (index) => false);
+      List<bool> defaultCompareValues = List.generate(4, (index) => false);
+      List<String> emptyDraw = List.generate(4, (index) => "");
+      SavedData defaultData = SavedData(
+          trajectories: defaultTrajectoriesValues,
+          letterIndex: index,
+          compareResults: defaultCompareValues,
+          letterDraw: emptyDraw);
+      drawPageController.savedDataSingleSet = defaultData;
+    }
   }
 }

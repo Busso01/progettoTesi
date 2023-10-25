@@ -22,8 +22,13 @@ const SavedDataSchema = CollectionSchema(
       name: r'compareResults',
       type: IsarType.boolList,
     ),
-    r'trajectories': PropertySchema(
+    r'letterDraw': PropertySchema(
       id: 1,
+      name: r'letterDraw',
+      type: IsarType.stringList,
+    ),
+    r'trajectories': PropertySchema(
+      id: 2,
       name: r'trajectories',
       type: IsarType.boolList,
     )
@@ -49,6 +54,13 @@ int _savedDataEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.compareResults.length;
+  bytesCount += 3 + object.letterDraw.length * 3;
+  {
+    for (var i = 0; i < object.letterDraw.length; i++) {
+      final value = object.letterDraw[i];
+      bytesCount += value.length * 3;
+    }
+  }
   bytesCount += 3 + object.trajectories.length;
   return bytesCount;
 }
@@ -60,7 +72,8 @@ void _savedDataSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeBoolList(offsets[0], object.compareResults);
-  writer.writeBoolList(offsets[1], object.trajectories);
+  writer.writeStringList(offsets[1], object.letterDraw);
+  writer.writeBoolList(offsets[2], object.trajectories);
 }
 
 SavedData _savedDataDeserialize(
@@ -71,8 +84,9 @@ SavedData _savedDataDeserialize(
 ) {
   final object = SavedData(
     compareResults: reader.readBoolList(offsets[0]) ?? [],
+    letterDraw: reader.readStringList(offsets[1]) ?? [],
     letterIndex: id,
-    trajectories: reader.readBoolList(offsets[1]) ?? [],
+    trajectories: reader.readBoolList(offsets[2]) ?? [],
   );
   return object;
 }
@@ -87,6 +101,8 @@ P _savedDataDeserializeProp<P>(
     case 0:
       return (reader.readBoolList(offset) ?? []) as P;
     case 1:
+      return (reader.readStringList(offset) ?? []) as P;
+    case 2:
       return (reader.readBoolList(offset) ?? []) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -289,6 +305,231 @@ extension SavedDataQueryFilter
     });
   }
 
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawElementEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'letterDraw',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawElementGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'letterDraw',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawElementLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'letterDraw',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawElementBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'letterDraw',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawElementStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'letterDraw',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawElementEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'letterDraw',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawElementContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'letterDraw',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawElementMatches(String pattern, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'letterDraw',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawElementIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'letterDraw',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawElementIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'letterDraw',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'letterDraw',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'letterDraw',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'letterDraw',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'letterDraw',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'letterDraw',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<SavedData, SavedData, QAfterFilterCondition>
+      letterDrawLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'letterDraw',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
+
   QueryBuilder<SavedData, SavedData, QAfterFilterCondition> letterIndexEqualTo(
       Id value) {
     return QueryBuilder.apply(this, (query) {
@@ -474,6 +715,12 @@ extension SavedDataQueryWhereDistinct
     });
   }
 
+  QueryBuilder<SavedData, SavedData, QDistinct> distinctByLetterDraw() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'letterDraw');
+    });
+  }
+
   QueryBuilder<SavedData, SavedData, QDistinct> distinctByTrajectories() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'trajectories');
@@ -493,6 +740,12 @@ extension SavedDataQueryProperty
       compareResultsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'compareResults');
+    });
+  }
+
+  QueryBuilder<SavedData, List<String>, QQueryOperations> letterDrawProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'letterDraw');
     });
   }
 

@@ -8,14 +8,12 @@ import '../../core/theme/theme.dart';
 class LetterCard extends GetView<SelectionViewController> {
   final String letter;
   final VoidCallback openContainer;
-  final List<bool>? isCompleted;
   final int letterIndex;
 
   const LetterCard({
     super.key,
     required this.letter,
     required this.openContainer,
-    required this.isCompleted,
     required this.letterIndex,
   });
 
@@ -33,18 +31,19 @@ class LetterCard extends GetView<SelectionViewController> {
         ),
       ),
       child: InkWell(
-        //onTap: openContainer,
+        onTap: openContainer,
         child: Center(
           child: RichText(
             text: TextSpan(
-                text: '$letter${letter.toLowerCase()}\n',
-                style: AppTheme.submainContentTextStyleBlack,
-                children: <TextSpan>[
-                  TextSpan(
-                    text: letter + letter.toLowerCase(),
-                    style: TextStyle(fontFamily: 'Dancing', fontSize: 30.sp),
-                  )
-                ]),
+              text: '$letter${letter.toLowerCase()}\n',
+              style: AppTheme.submainContentTextStyleBlack,
+              children: <TextSpan>[
+                TextSpan(
+                  text: letter + letter.toLowerCase(),
+                  style: TextStyle(fontFamily: 'Dancing', fontSize: 30.sp),
+                )
+              ],
+            ),
           ),
         ),
       ),

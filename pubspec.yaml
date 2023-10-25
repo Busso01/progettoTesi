@@ -52,6 +52,7 @@ dependencies:
   path_provider: ^2.1.1
   scidart: ^0.0.2-dev.12
   json_annotation: ^4.8.1
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
@@ -75,6 +76,7 @@ flutter:
   assets: 
     - assets/images/notebook.png
     - assets/images/rubber.png
+    - assets/images/settings.png
     - assets/path.json
 
   fonts:

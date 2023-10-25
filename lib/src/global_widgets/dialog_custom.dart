@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:progettotesi/core/services/api_service.dart';
 import 'package:progettotesi/core/theme/theme.dart';
 import 'package:progettotesi/src/DrawPage/draw_page_controller.dart';
+import 'package:progettotesi/src/SettingsPage/settings_controller.dart';
 import 'package:progettotesi/src/global_widgets/button_custom.dart';
 
 class DialogCustom {
@@ -29,26 +30,30 @@ class DialogCustom {
         height: 50.h,
         paddingHorizontal: 0,
         buttonColor: AppTheme.colorSuccess,
-        onPressed: () {
+        onPressed: () async {
           Get.back();
           controller.saveDrawWidget(drawnImage()).then((value) async {
             bool result = controller.compareImage();
-            bool trajectories = await controller.checkLetterPath(index);
-            await controller
-                .saveResult(result, index, trajectories)
-                .then((value) {
-              if (value) {
-                if (result && trajectories) {
-                  DialogCustom.successDialog(context, index);
-                } else if (!result && !trajectories) {
-                  DialogCustom.failDialog(context, index);
-                } else if (result) {
-                  DialogCustom.onlyCompareDialog(context, index);
-                } else if (trajectories) {
-                  DialogCustom.onlyPathDialog(context, index);
-                }
-              }
-            });
+            print(result);
+            await controller.checkLetterPath(index).then((value) async =>
+                await controller.saveResult(result, index, value).then((value) {
+                  if (value) {
+                    switch (controller.checkSavedData(index)) {
+                      case 0:
+                        DialogCustom.failDialog(context, index);
+                        break;
+                      case 1:
+                        DialogCustom.successDialog(context, index);
+                        break;
+                      case 2:
+                        DialogCustom.onlyCompareDialog(context, index);
+                        break;
+                      case 3:
+                        DialogCustom.onlyPathDialog(context, index);
+                        break;
+                    }
+                  }
+                }));
           });
         },
       ),
@@ -348,13 +353,13 @@ class DialogCustom {
       ),
       btnCancel: ButtonCustom(
         fontSize: 12.sp,
-        buttonText: "Cambia Stile",
+        buttonText: "Riprova",
         height: 50.h,
         width: 90.w,
         paddingHorizontal: 0,
         buttonColor: Colors.black,
         onPressed: () {
-          controller.resetControllerValues();
+          controller.scribbleNotifier[index].clear();
           Get.back();
         },
       ),
@@ -416,13 +421,13 @@ class DialogCustom {
       ),
       btnCancel: ButtonCustom(
         fontSize: 12.sp,
-        buttonText: "Cambia Stile",
+        buttonText: "Riprova",
         height: 50.h,
         width: 90.w,
         paddingHorizontal: 0,
         buttonColor: Colors.black,
         onPressed: () {
-          controller.resetControllerValues();
+          controller.scribbleNotifier[index].clear();
           Get.back();
         },
       ),
@@ -447,6 +452,68 @@ class DialogCustom {
       title: 'Buono!',
       desc:
           'La lettera è stata scritta nel modo giusto, ma non era abbastanza precisa',
+      showCloseIcon: false,
+    ).show();
+  }
+
+  static void removeAllDataDialog(BuildContext context) {
+    SettingsViewController controller = Get.find();
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.warning,
+      borderSide: BorderSide(
+        color: AppTheme.colorWarning,
+        width: 2.h,
+      ),
+      width: MediaQuery.of(context).size.width * 0.70,
+      buttonsBorderRadius: const BorderRadius.all(
+        Radius.circular(10),
+      ).r,
+      dismissOnTouchOutside: false,
+      dismissOnBackKeyPress: false,
+      btnOk: ButtonCustom(
+          fontSize: 12.sp,
+          buttonText: "Conferma",
+          height: 50.h,
+          width: 90.w,
+          paddingHorizontal: 0,
+          buttonColor: AppTheme.colorDanger,
+          onPressed: () async {
+            controller.deleteAllDatas();
+            Get.back();
+          }),
+      btnCancel: ButtonCustom(
+        fontSize: 12.sp,
+        buttonText: "Annulla",
+        height: 50.h,
+        width: 90.w,
+        paddingHorizontal: 0,
+        buttonColor: Colors.black,
+        onPressed: () {
+          Get.back();
+        },
+      ),
+      isDense: true,
+      padding: const EdgeInsets.all(8).w,
+      dialogBorderRadius: BorderRadius.all(const Radius.circular(20).r),
+      titleTextStyle: TextStyle(
+        color: AppTheme.colorTextBlack,
+        fontFamily: 'Aeonik',
+        fontSize: 25.sp,
+        fontWeight: FontWeight.w700,
+      ),
+      descTextStyle: TextStyle(
+        color: AppTheme.colorTextBlack,
+        fontFamily: 'Aeonik',
+        fontSize: 13.sp,
+        fontWeight: FontWeight.w400,
+      ),
+      enableEnterKey: true,
+      headerAnimationLoop: false,
+      animType: AnimType.bottomSlide,
+      title: 'Rimozione dati',
+      desc:
+          'Tutti i dati di salvataggio verranno rimossi, sei sicuro di voler proseguire? \n Questa operazione non è reversibile!',
       showCloseIcon: false,
     ).show();
   }
