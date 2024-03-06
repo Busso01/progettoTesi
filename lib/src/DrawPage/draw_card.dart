@@ -8,24 +8,28 @@ import 'package:progettotesi/src/global_widgets/dialog_custom.dart';
 import 'package:progettotesi/src/global_widgets/snackbar_custom.dart';
 import 'package:scribble/scribble.dart';
 
+/* La classe DrawCard rappresenta la tessera con la lettera scritta al suo interno, è rappresentata da uno Stack
+che permette la sovrapposizione di più Widget  */
 class DrawCard extends GetView<DrawPageController> {
-  final int index;
+  final int letterIndex;
 
   const DrawCard({
     super.key,
-    required this.index,
+    required this.letterIndex,
   });
 
   @override
   Widget build(BuildContext context) {
-    var height = 390.h;
-    var width = 195.w;
-    int dataSavedValue = controller.checkSavedData(index);
+    var height = 400.h; //altezza della card, adattata in base allo schermo
+    var width = 195.w; //larghezza della card, adattata in base allo schermo
+    int dataSavedValue = controller.checkSavedData(
+        letterIndex); //vengono ottenuti i dati salvati relativi alla lettera scelta
 
     return Stack(
       alignment: Alignment.bottomCenter,
       children: [
         AnimatedPositioned(
+          //Widget che cambia dimensione nel momento in cui viene cliccato
           duration: const Duration(milliseconds: 300),
           bottom: controller.isExpanded.value ? 10.h : 90.h,
           width: controller.isExpanded.value ? width * 1.2 : width,
@@ -53,16 +57,22 @@ class DrawCard extends GetView<DrawPageController> {
                   height: 50.h,
                   width: 160.w,
                   onPressed: () async {
-                    await controller.saveDraw(index).then((drawNotEmpty) {
+                    await controller.saveDraw(letterIndex).then((drawNotEmpty) {
+                      // viene salvata la lettera scritta dall'utente
                       if (drawNotEmpty) {
-                        controller.saveLetter(letter()).then((_) =>
-                            DialogCustom.confirmDrawDialog(context, index));
+                        // controllo per assicurarsi che ci sia qualcosa scritto
+                        controller.saveLetter(letter()).then(
+                            (_) => // viene salvata l'immagine della lettera originale
+                                DialogCustom.confirmDrawDialog(
+                                    // mostra all'utente il Dialog di conferma
+                                    context,
+                                    letterIndex));
                       } else {
-                        snackbarCustomDanger('Sezione disegno vuota',
+                        snackbarCustomDanger(
+                            'Sezione disegno vuota', //se la la zona di scrittura è vuota, viene mostrata una snackbar
                             'La sezione di disegno non può essere vuota, \n disegna la lettera poi conferma');
                       }
                     });
-                    //controller.checkStyle();
                   },
                   paddingHorizontal: 0,
                   fontSize: 12.sp,
@@ -78,15 +88,16 @@ class DrawCard extends GetView<DrawPageController> {
           bottom: 90.h,
           child: GestureDetector(
             onTap: () {
-              controller.checkResult(index)
+              controller.checkIfAlreadyDone(
+                      letterIndex) // controllo per impedire all'utente di modificare una lettera già completata
                   ? DialogCustom.drawAlreadyDoneDialog(context)
-                  : controller.openDetailPage();
+                  : controller
+                      .openDetailPage(); //se non lo è oppure l'utente vuole procedere, viene espansa la card
             },
             child: Container(
               height: height,
               width: width,
               decoration: BoxDecoration(
-                //border: controller.isAlreadyDone(index) == 2 ? Border.all(color: AppTheme.colorSuccess, width: 2.w) : controller.isAlreadyDone(index) == 1 ? ,
                 border: Border.all(
                     color: controller.isExpanded.value
                         ? Colors.transparent
@@ -106,20 +117,21 @@ class DrawCard extends GetView<DrawPageController> {
                     height: 20.h,
                   ),
                   Text(
-                    controller.selectTitle(index),
+                    controller.selectTitle(letterIndex),
                     style: AppTheme.normalContentTextStyleBold,
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(
-                    height: 25.h,
+                    height: 30.h,
                   ),
                   Flexible(
                     child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        reverseDuration: const Duration(milliseconds: 300),
-                        child: controller.isExpanded.value
-                            ? openedDrawCard()
-                            : closedDrawCard(dataSavedValue)),
+                      duration: const Duration(milliseconds: 300),
+                      reverseDuration: const Duration(milliseconds: 300),
+                      child: controller.isExpanded.value
+                          ? openedDrawCard()
+                          : closedDrawCard(dataSavedValue),
+                    ),
                   ),
                 ],
               ),
@@ -130,6 +142,7 @@ class DrawCard extends GetView<DrawPageController> {
     );
   }
 
+  // Widget della card quando chiusa, mostra i progressi dell'utente
   Widget closedDrawCard(int dataSavedValue) => Column(
         children: [
           letter(),
@@ -146,6 +159,7 @@ class DrawCard extends GetView<DrawPageController> {
         ],
       );
 
+  // Widget della card aperta, mostra l'area di disegno
   Widget openedDrawCard() => Column(
         key: const Key('expanded'),
         children: [
@@ -157,28 +171,24 @@ class DrawCard extends GetView<DrawPageController> {
             ],
           ),
           SizedBox(
-            height: 25.h,
+            height: 45.h,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                  iconSize: 20.sp,
-                  onPressed: () {
-                    controller.scribbleNotifier[index].clear();
-                  },
-                  icon: SizedBox(
-                    height: 30.h,
-                    width: 30.w,
-                    child: Image.asset('assets/images/rubber.png'),
-                  )),
-            ],
-          ),
+          IconButton(
+              iconSize: 20.sp,
+              onPressed: () {
+                controller.scribbleNotifier[letterIndex].clear();
+              },
+              icon: SizedBox(
+                height: 30.h,
+                width: 30.w,
+                child: Image.asset('assets/images/rubber.png'),
+              )),
         ],
       );
 
+  // Impostazioni dell'area di disegno
   Widget drawSection() {
-    controller.setScribbleNotifierSettings(index);
+    controller.setScribbleNotifierSettings(letterIndex);
     return ClipRRect(
       borderRadius: BorderRadius.circular(20.r),
       child: Container(
@@ -192,50 +202,59 @@ class DrawCard extends GetView<DrawPageController> {
             borderRadius: BorderRadius.all(Radius.circular(20.r)),
           ),
           child: Scribble(
-            notifier: controller.scribbleNotifier[index],
+            notifier: controller.scribbleNotifier[letterIndex],
           )),
     );
   }
 
-  Widget letter() => Container(
-        width: 90.w,
-        height: 140.h,
-        decoration:
-            const BoxDecoration(color: Color.fromARGB(255, 207, 207, 207)),
-        child: Center(
-          child: index == 0
-              ? Text(
-                  controller.selectedLetter,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 40.sp,
-                      fontFamily: 'Aeonik'),
-                )
-              : index == 1
-                  ? Text(
-                      controller.selectedLetter.toLowerCase(),
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 40.sp,
-                          fontFamily: 'Aeonik'),
-                    )
-                  : index == 2
-                      ? Text(
-                          controller.selectedLetter,
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 40.sp,
-                              fontFamily: 'Dancing'),
-                        )
-                      : Text(
-                          controller.selectedLetter.toLowerCase(),
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 40.sp,
-                              fontFamily: 'Dancing'),
-                        ),
-        ),
-      );
+  // Impostazioni relative alla lettera da ricopiare
+  Widget letter() {
+    return Container(
+      width: 90.w,
+      height: 140.h,
+      decoration:
+          const BoxDecoration(color: Color.fromARGB(255, 207, 207, 207)),
+      child: Center(
+        child: letterIndex ==
+                0 // in base alla card scelta viene mostrato lo stile corretto
+            ? Text(
+                controller.selectedLetter,
+                style: TextStyle(
+                    color: Colors.black, fontSize: 40.sp, fontFamily: 'Aeonik'),
+              )
+            : letterIndex == 1
+                ? Text(
+                    controller.selectedLetter.toLowerCase(),
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 40.sp,
+                        fontFamily: 'Aeonik'),
+                  )
+                : letterIndex == 2
+                    ? Text(
+                        controller.selectedLetter,
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 40.sp,
+                            fontFamily: 'Dancing'),
+                      )
+                    : Text(
+                        controller.selectedLetter.toLowerCase(),
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 40.sp,
+                            fontFamily: 'Dancing'),
+                      ),
+      ),
+    );
+  }
+
+  /*
+    I successivi widget reppresentano la sezione della card che mostra le informazioni dei progressi dell'utente
+    per evitare lunghe catene di If sono state separati, ogni wiget rappresenta un possibile risultato.
+    Per avere un codice più compatto è possibile aggiungere controlli in modo che venga impostato il giusto stile
+    in base al risultato della valutazione
+  */
 
   Widget allCompletedWithSuccess() {
     return Column(
@@ -267,30 +286,32 @@ class DrawCard extends GetView<DrawPageController> {
         SizedBox(
           height: 10.h,
         ),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 25.w),
-          decoration: BoxDecoration(
-            border: Border.all(width: 1.sp, color: AppTheme.colorSuccess),
-            borderRadius: BorderRadius.circular(25.r),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.check_rounded,
-                color: AppTheme.colorSuccess,
-                size: 28.sp,
-              ),
-              SizedBox(
-                width: 5.w,
-              ),
-              Text(
-                'Metodologia',
-                style: AppTheme.normalContentTextStyle,
-              ),
-            ],
-          ),
-        ),
+        controller.isTrajectoryCheckingOnValue
+            ? Container(
+                margin: EdgeInsets.symmetric(horizontal: 25.w),
+                decoration: BoxDecoration(
+                  border: Border.all(width: 1.sp, color: AppTheme.colorSuccess),
+                  borderRadius: BorderRadius.circular(25.r),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.check_rounded,
+                      color: AppTheme.colorSuccess,
+                      size: 28.sp,
+                    ),
+                    SizedBox(
+                      width: 5.w,
+                    ),
+                    Text(
+                      'Metodologia',
+                      style: AppTheme.normalContentTextStyle,
+                    ),
+                  ],
+                ),
+              )
+            : Container(),
       ],
     );
   }
@@ -325,30 +346,31 @@ class DrawCard extends GetView<DrawPageController> {
         SizedBox(
           height: 10.h,
         ),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 25.w),
-          decoration: BoxDecoration(
-            border: Border.all(width: 1.sp, color: AppTheme.colorDanger),
-            borderRadius: BorderRadius.circular(25.r),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.close_rounded,
-                color: AppTheme.colorDanger,
-                size: 28.sp,
-              ),
-              SizedBox(
-                width: 5.w,
-              ),
-              Text(
-                'Metodologia',
-                style: AppTheme.normalContentTextStyle,
-              ),
-            ],
-          ),
-        ),
+        controller.isTrajectoryCheckingOnValue
+            ? Container(
+                margin: EdgeInsets.symmetric(horizontal: 25.w),
+                decoration: BoxDecoration(
+                  border: Border.all(width: 1.sp, color: AppTheme.colorDanger),
+                  borderRadius: BorderRadius.circular(25.r),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.close_rounded,
+                      color: AppTheme.colorDanger,
+                      size: 28.sp,
+                    ),
+                    SizedBox(
+                      width: 5.w,
+                    ),
+                    Text(
+                      'Metodologia',
+                      style: AppTheme.normalContentTextStyle,
+                    ),
+                  ],
+                ))
+            : Container(),
       ],
     );
   }
@@ -383,30 +405,32 @@ class DrawCard extends GetView<DrawPageController> {
         SizedBox(
           height: 10.h,
         ),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 25.w),
-          decoration: BoxDecoration(
-            border: Border.all(width: 1.sp, color: AppTheme.colorDanger),
-            borderRadius: BorderRadius.circular(25.r),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.close_rounded,
-                color: AppTheme.colorDanger,
-                size: 28.sp,
-              ),
-              SizedBox(
-                width: 5.w,
-              ),
-              Text(
-                'Metodologia',
-                style: AppTheme.normalContentTextStyle,
-              ),
-            ],
-          ),
-        ),
+        controller.isTrajectoryCheckingOnValue
+            ? Container(
+                margin: EdgeInsets.symmetric(horizontal: 25.w),
+                decoration: BoxDecoration(
+                  border: Border.all(width: 1.sp, color: AppTheme.colorDanger),
+                  borderRadius: BorderRadius.circular(25.r),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.close_rounded,
+                      color: AppTheme.colorDanger,
+                      size: 28.sp,
+                    ),
+                    SizedBox(
+                      width: 5.w,
+                    ),
+                    Text(
+                      'Metodologia',
+                      style: AppTheme.normalContentTextStyle,
+                    ),
+                  ],
+                ),
+              )
+            : Container(),
       ],
     );
   }
@@ -441,30 +465,32 @@ class DrawCard extends GetView<DrawPageController> {
         SizedBox(
           height: 10.h,
         ),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 25.w),
-          decoration: BoxDecoration(
-            border: Border.all(width: 1.sp, color: AppTheme.colorSuccess),
-            borderRadius: BorderRadius.circular(25.r),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.check_rounded,
-                color: AppTheme.colorSuccess,
-                size: 28.sp,
-              ),
-              SizedBox(
-                width: 5.w,
-              ),
-              Text(
-                'Metodologia',
-                style: AppTheme.normalContentTextStyle,
-              ),
-            ],
-          ),
-        ),
+        controller.isTrajectoryCheckingOnValue
+            ? Container(
+                margin: EdgeInsets.symmetric(horizontal: 25.w),
+                decoration: BoxDecoration(
+                  border: Border.all(width: 1.sp, color: AppTheme.colorSuccess),
+                  borderRadius: BorderRadius.circular(25.r),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.check_rounded,
+                      color: AppTheme.colorSuccess,
+                      size: 28.sp,
+                    ),
+                    SizedBox(
+                      width: 5.w,
+                    ),
+                    Text(
+                      'Metodologia',
+                      style: AppTheme.normalContentTextStyle,
+                    ),
+                  ],
+                ),
+              )
+            : Container(),
       ],
     );
   }

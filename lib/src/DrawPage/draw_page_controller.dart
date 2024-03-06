@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:progettotesi/core/jsonLetterModel/letters_path.dart';
 import 'package:progettotesi/core/models/saved_data.dart';
 import 'package:progettotesi/core/jsonLetterModel/saved_letters_path.dart';
@@ -18,7 +16,10 @@ import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 
+/* Controller relativo alla pagina di scrittura */
+
 class DrawPageController extends GetxController {
+  // Vengono inizializzati tutti gli scribble notifier per la  zona di scrittura
   List<ScribbleNotifier> scribbleNotifier = [
     ScribbleNotifier(),
     ScribbleNotifier(),
@@ -26,26 +27,32 @@ class DrawPageController extends GetxController {
     ScribbleNotifier()
   ];
 
+  // Inizializzazione dei controller
   ScreenshotController screenshotController = ScreenshotController();
   PageController pageController = PageController(viewportFraction: 0.8);
 
-  List<double> drawPointsX = [];
-  List<double> drawPointsY = [];
-
+  // Dichiarazione delle variabili che conterranno le immagini delle lettere
   Uint8List? widget;
   Uint8List? draw;
 
+  // Dichiarazione delle variabili che conterranno le immagini delle lettere nel giusto formato per il confronto
   img.Image? drawImage;
   img.Image? widgetImage;
 
-  Map<String, dynamic> paths = {};
+  // Una mappa che contiene il percorso fatto nella scrittura della lettera, utilizzata solo nel caso in cui
+  // sia necessario aggiornare le traiettorie
+  // Map<String, dynamic> paths = {};
 
+  // Variabile osservabile per effettuare l'apertura della card
   var isExpanded = false.obs;
 
+  // Dichiarazione variabili che verranno inizializzate nel momento in cui viene creato il controller
   late String selectedLetter;
   late int selectedLetterIndex;
   late SavedData savedDataSingleSet;
+  late bool isTrajectoryCheckingOnValue;
 
+  // Impostazione dei corretti settaggi per gli scribbleNotifier
   @override
   void onInit() {
     super.onInit();
@@ -64,6 +71,7 @@ class DrawPageController extends GetxController {
     super.onClose();
   }
 
+  // Funzione per il salvataggio della lettera originale
   Future<void> saveLetter(Widget widgetPassed) async {
     widget = await screenshotController.captureFromWidget(widgetPassed,
         delay: const Duration(seconds: 0));
@@ -71,6 +79,7 @@ class DrawPageController extends GetxController {
     widget = null;
   }
 
+  // Funzione per il salvataggio dello Widget contenente la lettera scritta dall'utente
   Future<void> saveDrawWidget(Widget widgetPassed) async {
     draw = await screenshotController.captureFromWidget(widgetPassed,
         delay: const Duration(seconds: 0));
@@ -78,6 +87,7 @@ class DrawPageController extends GetxController {
     draw = null;
   }
 
+  // Funzione per il salvataggio della lettera scritta dall'utente
   Future<bool> saveDraw(int index) async {
     Sketch sketch = scribbleNotifier[index].currentSketch;
     if (sketch.lines.isNotEmpty) {
@@ -88,15 +98,17 @@ class DrawPageController extends GetxController {
     return false;
   }
 
+  // Funzione che permette l'apertura della card della lettera
   void openDetailPage() {
     if (!isExpanded.value) {
       isExpanded.value = true;
     } else {
       isExpanded.value = false;
-      //clearAllScribbles();
+      clearAllScribbles();
     }
   }
 
+  // Funzione per pulire tutti gli scribble
   void clearAllScribbles() {
     scribbleNotifier[0].clear();
     scribbleNotifier[1].clear();
@@ -104,11 +116,13 @@ class DrawPageController extends GetxController {
     scribbleNotifier[3].clear();
   }
 
+  // Funzione per resettare alcuni parametri del controller quando viene chiusa la pagina di scrittura
   void resetControllerValues() {
     clearAllScribbles();
     isExpanded.value = false;
   }
 
+  // Funzione di selezione del titolo corretto in base allo stile di lettera mostrato
   String selectTitle(int index) {
     switch (index) {
       case 0:
@@ -123,6 +137,7 @@ class DrawPageController extends GetxController {
     return '';
   }
 
+  // Funzione per verificare i progressi fatti dall'utente e mostrarli correttamente
   int checkSavedData(int index) {
     bool result = savedDataSingleSet.compareResults[index];
     bool trajectories = savedDataSingleSet.trajectories[index];
@@ -137,7 +152,8 @@ class DrawPageController extends GetxController {
     }
   }
 
-  bool checkResult(int letterIndex) {
+  // Funzione per verificare se sono presenti dati di salvataggio relativi alla lettera scelta
+  bool checkIfAlreadyDone(int letterIndex) {
     if (!isExpanded.value) {
       if (checkSavedData(letterIndex) == 1) {
         return true;
@@ -146,6 +162,7 @@ class DrawPageController extends GetxController {
     return false;
   }
 
+  // Funzione che impsota i parametri dello scribble notifier, prendendo informazini anche da SharedPreferences
   void setScribbleNotifierSettings(int index) async {
     try {
       await SharedPreferences.getInstance().then((value) {
@@ -171,10 +188,12 @@ class DrawPageController extends GetxController {
         scribbleNotifier[index].setStrokeWidth(1.05.sp);
       }
     } catch (e) {
-      print(e.toString());
+      snackbarCustomDanger("Errore Salvataggio Impostazione", e.toString());
     }
   }
 
+  // Funzione che effettua la comparazione tra le immagini, conta il numero di pixel delle due immagini,
+  // conta il numero di pixel neri, ed effettua il confronto
   bool compareImage() {
     int numBlackPixelDraw = 0;
     int numBlackPixelWidget = 0;
@@ -198,8 +217,8 @@ class DrawPageController extends GetxController {
       }
     }
 
-    if (numBlackPixelDraw >= numBlackPixelWidget * 0.45 &&
-        numBlackPixelDraw <= numBlackPixelWidget * 1.2) {
+    if (numBlackPixelDraw >= numBlackPixelWidget * 0.45 &&      // controllo del numero di pixel
+        numBlackPixelDraw <= numBlackPixelWidget * 1.2) {       // modificare questo parametro per cambiare la precisione richiesta
       if (numPixelMatching >= numBlackPixelWidget * 0.40) {
         return true;
       }
@@ -207,33 +226,35 @@ class DrawPageController extends GetxController {
     return false;
   }
 
+  // Funzione per il controllo della traiettoria
   Future<bool> checkLetterPath(int index) async {
-    double dtw;
-    try {
-      Sketch? letter = await loadSketchFromJson(index);
-      Sketch draw = scribbleNotifier[index].currentSketch;
-      if (draw.lines.length != letter!.lines.length) {
-        return false;
-      } else {
-        for (int i = 0; i < letter.lines.length; i++) {
-          List<Point> drawLines = draw.lines[i].points;
-          List<Point> letterLines = letter.lines[i].points;
-          dtw = calculateDTW(drawLines, letterLines);
-
-          if (dtw > 3) {
-            return false;
+    if (isTrajectoryCheckingOnValue) {              // controllo effettuato solo se la funzione è abilitata
+      try {
+        Sketch? letter = await loadSketchFromJson(index);
+        Sketch draw = scribbleNotifier[index].currentSketch;
+        if (draw.lines.length != letter!.lines.length) {
+          return false;
+        } else {
+          for (int i = 0; i < letter.lines.length; i++) {
+            List<Point> drawLines = draw.lines[i].points;
+            List<Point> letterLines = letter.lines[i].points;
+            double dtw = calculateDTW(drawLines, letterLines);
+            if (dtw > 3) {
+              return false;
+            }
           }
+          return true;
         }
-        return true;
+      } catch (e) {
+        snackbarCustomDanger('Errore controllo traiettoria',
+            'Si è verificato un errore nella verifica \n della traiettoria, riprovare');
       }
-    } catch (e) {
-      snackbarCustomDanger('Errore controllo traiettoria',
-          'Si è verificato un errore nella verifica \n della traiettoria, riprovare');
     }
-    return false;
+    return true;
   }
 
-  double calculateDTW(List<Point> drawLines, List<Point> letterLines) {
+  // Funzione che calcola il DTW basandosi sulle traiettorie salvate e quelle ottenute dalla lettera scritta
+  double calculateDTW(List drawLines, List letterLines) {
     List<List> dtw = List.generate(drawLines.length,
         (index) => List.generate(letterLines.length, (index) => 0.0));
     double cost;
@@ -253,10 +274,11 @@ class DrawPageController extends GetxController {
       }
     }
 
-    return sqrt(
-        dtw[drawLines.length - 1][letterLines.length - 1] / drawLines.length);
+    return sqrt(dtw[drawLines.length - 1][letterLines.length - 1] /
+        max(drawLines.length, letterLines.length));
   }
 
+  // Fun<ione che salva il risultato della comparazione
   Future<bool> saveResult(bool result, int index, bool trajectories) async {
     savedDataSingleSet.compareResults[index] = result;
     savedDataSingleSet.trajectories[index] = trajectories;
@@ -268,14 +290,16 @@ class DrawPageController extends GetxController {
         .then((value) => value);
   }
 
-  Future<Sketch?> loadSketchFromJson(int index) async {
+  // Funzione che carica le traiettorie ideali salvate nel file json integrato nell'applicazione
+  Future<Sketch?> loadSketchFromJson(int letterStyleIndex) async {
     String jsonString = await rootBundle.loadString('assets/path.json');
     Map<String, dynamic> mapFromJson = jsonDecode(jsonString);
     SavedLetterPath savedLetterPath = SavedLetterPath.fromJson(mapFromJson);
     LettersPath lettersPath =
         LettersPath.fromJson(savedLetterPath.letterPath[selectedLetter]);
 
-    switch (index) {
+  // Restituisce il path ideale in base allo stile richiesto
+    switch (letterStyleIndex) {
       case 0:
         return Sketch.fromJson(lettersPath.capitalBlockLetter);
       case 1:
@@ -289,21 +313,22 @@ class DrawPageController extends GetxController {
     }
   }
 
-  void printJson() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final path = directory.path;
-    final file = File('$path/path.json');
+  // Funzione utilizzata per salvare le traiettorie nel file json, può essere utile nel caso dovessero essere aggiornate
+  // void printJson() async {
+  //   final directory = await getApplicationDocumentsDirectory();
+  //   final path = directory.path;
+  //   final file = File('$path/path.json');
 
-    LettersPath lettersPath = LettersPath(
-        capitalBlockLetter: scribbleNotifier[0].currentSketch.toJson(),
-        lowerCaseBlockLetter: scribbleNotifier[1].currentSketch.toJson(),
-        capitalItalic: scribbleNotifier[2].currentSketch.toJson(),
-        lowerCaseItalic: scribbleNotifier[3].currentSketch.toJson());
-    paths[selectedLetter] = lettersPath;
+  //   LettersPath lettersPath = LettersPath(
+  //       capitalBlockLetter: scribbleNotifier[0].currentSketch.toJson(),
+  //       lowerCaseBlockLetter: scribbleNotifier[1].currentSketch.toJson(),
+  //       capitalItalic: scribbleNotifier[2].currentSketch.toJson(),
+  //       lowerCaseItalic: scribbleNotifier[3].currentSketch.toJson());
+  //   paths[selectedLetter] = lettersPath;
 
-    SavedLetterPath savedLetterPath = SavedLetterPath(letterPath: paths);
-    String savedPathJson = jsonEncode(savedLetterPath);
+  //   SavedLetterPath savedLetterPath = SavedLetterPath(letterPath: paths);
+  //   String savedPathJson = jsonEncode(savedLetterPath);
 
-    file.writeAsString(savedPathJson);
-  }
+  //   file.writeAsString(savedPathJson);
+  // }
 }

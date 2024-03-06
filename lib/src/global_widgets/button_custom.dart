@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../core/theme/theme.dart';
 
+/* Widget che permette di creare pulsanti personalizzati passando i parametri necessari */
 class ButtonCustom extends StatelessWidget {
   final String buttonText;
   final VoidCallback? onPressed;
@@ -41,8 +42,8 @@ class ButtonCustom extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(bottom: marginBottom ?? 0, top: marginTop ?? 0),
-      width: width ?? double.infinity,
-      height: height ?? 50.w,
+      width: width ?? 200.w,
+      height: height ?? 70.h,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
@@ -53,7 +54,7 @@ class ButtonCustom extends StatelessWidget {
           ),
           textStyle: TextStyle(
             fontFamily: 'Aeonik',
-            fontSize: fontSize ?? 20.sp,
+            fontSize: fontSize ?? 16.sp,
             fontWeight: FontWeight.bold,
           ),
           backgroundColor: buttonColor ?? AppTheme.colorAnthracite,

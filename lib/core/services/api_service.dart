@@ -3,19 +3,21 @@ import 'package:path_provider/path_provider.dart';
 import 'package:progettotesi/core/models/saved_data.dart';
 import 'package:progettotesi/src/global_widgets/snackbar_custom.dart';
 
+// Classe che permette l'interazione con il DB Isar
 class ApiService {
   List<SavedData?> savedData = [];
 
+  // Funzione che interroga il DB ed ottiene tutti i dati persistenti salvati
   Future<List<SavedData?>?> getAllPersistenceData() async {
     Isar? isar;
     try {
       final dir = await getApplicationDocumentsDirectory();
       isar = await Isar.open([SavedDataSchema], directory: dir.path);
-      List<int> ids = [];
+      List<int> iDs = [];
       for (int i = 0; i < 26; i++) {
-        ids.add(i);
+        iDs.add(i);
       }
-      var results = await isar.savedDatas.getAll(ids);
+      var results = await isar.savedDatas.getAll(iDs);
       savedData.addAll(results);
       isar.close();
       return savedData;
@@ -27,6 +29,7 @@ class ApiService {
     }
   }
 
+  // Funzione che permette di salvare nel DB i risultati di una comparazione
   Future<bool> saveResultAPI(SavedData dataToSave) async {
     Isar? isar;
     try {
@@ -45,6 +48,7 @@ class ApiService {
     }
   }
 
+  // Funzione che permette di resettare tutti i dati di salvataggio
   Future<bool> removeAllPersistenceData() async {
     Isar? isar;
     try {

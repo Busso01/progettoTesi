@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:progettotesi/core/theme/theme.dart';
 
+
+// Funzione che permette la creazione delle snackbar, passando il titolo ed il messaggi che si vuole mostrare
 void snackbarCustomSuccess(String title, String message) {
   Get.snackbar(
     title,

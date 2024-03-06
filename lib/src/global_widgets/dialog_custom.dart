@@ -8,8 +8,15 @@ import 'package:progettotesi/src/DrawPage/draw_page_controller.dart';
 import 'package:progettotesi/src/SettingsPage/settings_controller.dart';
 import 'package:progettotesi/src/global_widgets/button_custom.dart';
 
+/*
+  La classe racchiude tutti i vari dialog utilizzati nell'applicazione
+*/
 class DialogCustom {
-  static void confirmDrawDialog(BuildContext context, var index) {
+  /* 
+    Dialog di conferma, si occupa di richiamare le varie funzioni per effettuare la valutazione della letteta,
+    e richiama il secondo dialog corretto in base al risultato ottenuto
+  */
+  static void confirmDrawDialog(BuildContext context, var letterIndex) {
     DrawPageController controller = Get.find();
     AwesomeDialog(
       context: context,
@@ -32,29 +39,50 @@ class DialogCustom {
         buttonColor: AppTheme.colorSuccess,
         onPressed: () async {
           Get.back();
-          controller.saveDrawWidget(drawnImage()).then((value) async {
-            bool result = controller.compareImage();
-            print(result);
-            await controller.checkLetterPath(index).then((value) async =>
-                await controller.saveResult(result, index, value).then((value) {
-                  if (value) {
-                    switch (controller.checkSavedData(index)) {
-                      case 0:
-                        DialogCustom.failDialog(context, index);
-                        break;
-                      case 1:
-                        DialogCustom.successDialog(context, index);
-                        break;
-                      case 2:
-                        DialogCustom.onlyCompareDialog(context, index);
-                        break;
-                      case 3:
-                        DialogCustom.onlyPathDialog(context, index);
-                        break;
-                    }
-                  }
-                }));
-          });
+          controller.saveDrawWidget(drawnImage()).then(                         // salva l'immagine della lettera ed aspetta che sia completato
+            (imageSaved) async {
+              bool result = controller.compareImage();                          // confronta le immagini delle lettere
+              await controller.checkLetterPath(letterIndex).then(               // effettua il confronto della traiettoria (che verrà saltato se disabilitato)
+                    (resultOfComparison) async => await controller              
+                        .saveResult(result, letterIndex, resultOfComparison)    // salva i risultati
+                        .then(
+                      (resultSaved) {
+                        if (resultSaved) {
+                          if (controller.isTrajectoryCheckingOnValue) {         // richiama il dialog corretto, controllando se il controllo della traiettoria era abilitato
+                            switch (controller.checkSavedData(letterIndex)) {
+                              case 0:
+                                DialogCustom.failDialog(context, letterIndex);
+                                break;
+                              case 1:
+                                DialogCustom.successDialog(
+                                    context, letterIndex);
+                                break;
+                              case 2:
+                                DialogCustom.onlyCompareDialog(
+                                    context, letterIndex);
+                                break;
+                              case 3:
+                                DialogCustom.onlyPathDialog(
+                                    context, letterIndex);
+                                break;
+                            }
+                          } else {
+                            switch (controller.checkSavedData(letterIndex)) {
+                              case 1:
+                                DialogCustom.successDialog(
+                                    context, letterIndex);
+                                break;
+                              case 3:
+                                DialogCustom.failDialog(context, letterIndex);
+                                break;
+                            }
+                          }
+                        }
+                      },
+                    ),
+                  );
+            },
+          );
         },
       ),
       btnCancel: ButtonCustom(
@@ -64,8 +92,7 @@ class DialogCustom {
         paddingHorizontal: 0,
         buttonColor: AppTheme.colorDanger,
         onPressed: () {
-          //controller.scribbleNotifier[index].clear();
-          //controller.drawPoints.clear();
+          controller.scribbleNotifier[letterIndex].clear();
           Get.back();
         },
       ),
@@ -110,7 +137,8 @@ class DialogCustom {
     ).show();
   }
 
-  static void successDialog(BuildContext context, var index) {
+  /* Dialog di successo completo */
+  static void successDialog(BuildContext context, var letterIndex) {
     DrawPageController controller = Get.find();
     AwesomeDialog(
       context: context,
@@ -177,7 +205,8 @@ class DialogCustom {
     ).show();
   }
 
-  static void failDialog(BuildContext context, var index) {
+  /* Dialog di fallimento completo */
+  static void failDialog(BuildContext context, var letterIndex) {
     DrawPageController controller = Get.find();
     AwesomeDialog(
       context: context,
@@ -216,7 +245,7 @@ class DialogCustom {
         paddingHorizontal: 0,
         buttonColor: Colors.black,
         onPressed: () {
-          controller.scribbleNotifier[index].clear();
+          controller.scribbleNotifier[letterIndex].clear();
           Get.back();
         },
       ),
@@ -244,6 +273,7 @@ class DialogCustom {
     ).show();
   }
 
+  /* Dialog che informa l'utente che la lettera è già stata completata */
   static void drawAlreadyDoneDialog(BuildContext context) {
     DrawPageController controller = Get.find();
     AwesomeDialog(
@@ -310,6 +340,8 @@ class DialogCustom {
     ).show();
   }
 
+  /* Widget che racchiude l'immagine della lettera scritta dall'utente, è stato necessario inserirlo in questo modo 
+  poichè altrimenti le dimensioni non erano corrette */
   static drawnImage() {
     DrawPageController controller = Get.find();
     return Container(
@@ -320,7 +352,8 @@ class DialogCustom {
         child: Image.memory(controller.draw!));
   }
 
-  static void onlyCompareDialog(BuildContext context, var index) {
+  /* Dialog che informa l'utente che solo l'accuratezza era sufficiente */
+  static void onlyCompareDialog(BuildContext context, var letterIndex) {
     DrawPageController controller = Get.find();
     AwesomeDialog(
       context: context,
@@ -359,7 +392,7 @@ class DialogCustom {
         paddingHorizontal: 0,
         buttonColor: Colors.black,
         onPressed: () {
-          controller.scribbleNotifier[index].clear();
+          controller.scribbleNotifier[letterIndex].clear();
           Get.back();
         },
       ),
@@ -388,7 +421,8 @@ class DialogCustom {
     ).show();
   }
 
-  static void onlyPathDialog(BuildContext context, var index) {
+  /* Dialog che informa l'utente che solo la traiettoria di scrittura era corretta */
+  static void onlyPathDialog(BuildContext context, var letterIndex) {
     DrawPageController controller = Get.find();
     AwesomeDialog(
       context: context,
@@ -427,7 +461,7 @@ class DialogCustom {
         paddingHorizontal: 0,
         buttonColor: Colors.black,
         onPressed: () {
-          controller.scribbleNotifier[index].clear();
+          controller.scribbleNotifier[letterIndex].clear();
           Get.back();
         },
       ),
@@ -456,6 +490,7 @@ class DialogCustom {
     ).show();
   }
 
+  /* Dialog di avviso nel momento in cui l'utente richiede l'eliminazione dei progressi */
   static void removeAllDataDialog(BuildContext context) {
     SettingsViewController controller = Get.find();
     AwesomeDialog(
@@ -472,16 +507,17 @@ class DialogCustom {
       dismissOnTouchOutside: false,
       dismissOnBackKeyPress: false,
       btnOk: ButtonCustom(
-          fontSize: 12.sp,
-          buttonText: "Conferma",
-          height: 50.h,
-          width: 90.w,
-          paddingHorizontal: 0,
-          buttonColor: AppTheme.colorDanger,
-          onPressed: () async {
-            controller.deleteAllDatas();
-            Get.back();
-          }),
+        fontSize: 12.sp,
+        buttonText: "Conferma",
+        height: 50.h,
+        width: 90.w,
+        paddingHorizontal: 0,
+        buttonColor: AppTheme.colorDanger,
+        onPressed: () async {
+          controller.deleteAllDatas();
+          Get.back();
+        },
+      ),
       btnCancel: ButtonCustom(
         fontSize: 12.sp,
         buttonText: "Annulla",

@@ -5,6 +5,7 @@ import 'package:progettotesi/src/SelectLetter/selection_view_controller.dart';
 
 import '../../core/theme/theme.dart';
 
+// Classe che rappresenta il singolo riquadro contentente la lettera nei vari stili
 class LetterCard extends GetView<SelectionViewController> {
   final String letter;
   final VoidCallback openContainer;
@@ -20,7 +21,7 @@ class LetterCard extends GetView<SelectionViewController> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: BoxDecoration(       // Vengono fatti dei controlli sui dati salvati in modo da mostrare i progressi sul bordo del riquadro
         border: controller.checkSavedDatas(letterIndex) == 2
             ? Border.all(color: AppTheme.colorSuccess, width: 2.w)
             : controller.checkSavedDatas(letterIndex) == 1
@@ -31,7 +32,7 @@ class LetterCard extends GetView<SelectionViewController> {
         ),
       ),
       child: InkWell(
-        onTap: openContainer,
+        onTap: openContainer,         // apre alla pagina di scrittura della lettera quando viene cliccata
         child: Center(
           child: RichText(
             text: TextSpan(
